@@ -12,7 +12,7 @@ const AppNavigator = () => {
     return (
         <Tab.Navigator>
             <Tab.Screen
-                name="Home"
+                name="Dashboard"
                 component={HomeScreen}
             />
 
