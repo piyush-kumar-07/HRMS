@@ -1,97 +1,149 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# HRMS — Human Resource Management System
 
-# Getting Started
+A custom-built **Human Resource Management System (HRMS)** developed as a practical software project.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+The system is being designed to provide organizations with a centralized platform for managing employees, administration, authentication, and employee-related information.
 
-## Step 1: Start Metro
+> **Project Status:** 🚧 Under Active Development
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🎯 Project Objective
 
-```sh
-# Using npm
-npm start
+The goal of this project is to develop a structured HRMS application that can be adapted to an organization's actual workflow and requirements.
 
-# OR using Yarn
-yarn start
+The application is being developed with a focus on:
+
+* Clean and maintainable code
+* Simple and practical user experience
+* Role-based access
+* Centralized employee information
+* Scalable application architecture
+* Future integration with backend services and databases
+
+---
+
+## 👥 Planned User Roles
+
+### Admin
+
+The Admin application will provide functionality for managing the organization's employees and administrative operations.
+
+Planned areas include:
+
+* Admin Login
+* Employee Management
+* Employee Profiles
+* Employee Documents
+* User & Permission Management
+* Department Management
+* Organization Information
+* Employee-related details and records
+
+### Employee
+
+The Employee application will provide employees with access to their own information and relevant HR features.
+
+Planned functionality will be defined according to the organization's requirements.
+
+---
+
+## 📱 Current Development
+
+The project is currently in the initial development stage.
+
+### Implemented
+
+* React Native project setup
+* TypeScript configuration
+* Initial application structure
+* Login screen UI
+* Email / Employee ID field
+* Password field
+* Login button
+* Forgot Password interface
+
+### Currently Working On
+
+* Application navigation
+* Admin application structure
+* Employee application structure
+* Authentication flow
+* Screen architecture
+
+---
+
+## 🏗️ Development Approach
+
+The application is being developed incrementally.
+
+Each major module will be designed, implemented, tested, and integrated into the application before moving to the next stage.
+
+This allows the system to evolve according to the actual requirements of the organization rather than locking the entire architecture before the requirements are finalized.
+
+---
+
+## 🗺️ Planned Development
+
+```text
+Project Setup
+      │
+      ▼
+Login Screen
+      │
+      ▼
+Navigation
+      │
+      ▼
+Admin Application
+      │
+      ▼
+Employee Application
+      │
+      ▼
+Authentication
+      │
+      ▼
+Employee Management
+      │
+      ▼
+Profiles & Documents
+      │
+      ▼
+Permissions & Access Control
+      │
+      ▼
+Backend Integration
+      │
+      ▼
+Testing & Refinement
 ```
 
-## Step 2: Build and run your app
+> The development plan may change as business requirements are finalized.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## 🛠️ Technology
 
-```sh
-# Using npm
-npm run android
+Current development is based on:
 
-# OR using Yarn
-yarn android
-```
+* React Native
+* TypeScript
 
-### iOS
+Additional technologies and services will be introduced as the application requirements are finalized.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+---
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 📌 Project Status
 
-```sh
-bundle install
-```
+**Current Stage:** Initial UI & Application Structure
 
-Then, and every time you update your native dependencies, run:
+The project is actively under development. Features, UI, architecture, and implementation details may evolve throughout the development process based on the organization's requirements.
 
-```sh
-bundle exec pod install
-```
+---
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 👨‍💻 Developer
 
-```sh
-# Using npm
-npm run ios
+**Piyush Kumar**
 
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Custom software development project focused on building a practical HRMS solution.
