@@ -6,6 +6,7 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    Image,
 } from 'react-native';
 
 const LoginScreen = () => {
@@ -22,7 +23,10 @@ const LoginScreen = () => {
             <View style={styles.content}>
 
                 {/* Logo / App Name */}
-                <Text style={styles.logo}>HRMS</Text>
+                <Image
+                    source={require('../assets/logo.png')}
+                    style={styles.logo}
+                />
 
                 {/* Heading */}
                 <Text style={styles.title}>Welcome Back</Text>
@@ -37,7 +41,7 @@ const LoginScreen = () => {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter your email or employee ID"
-                        placeholderTextColor="#999"
+                        placeholderTextColor="#4B0082"
                         value={email}
                         onChangeText={setEmail}
                         autoCapitalize="none"
@@ -51,7 +55,7 @@ const LoginScreen = () => {
                     <TextInput
                         style={styles.input}
                         placeholder="Enter your password"
-                        placeholderTextColor="#999"
+                        placeholderTextColor="#4B0082"
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
@@ -80,7 +84,7 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'white',
     },
 
     content: {
@@ -90,10 +94,12 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        fontSize: 32,
-        fontWeight: '700',
-        textAlign: 'center',
-        marginBottom: 45,
+        width: 150,
+        height: 150,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+        marginBottom: 30,
+        marginRight: 20,
     },
 
     title: {
@@ -101,24 +107,27 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#111827',
         textAlign: 'center',
+        marginRight: 20,
+        marginLeft: 20,
     },
 
     subtitle: {
-        fontSize: 15,
+        fontSize: 17,
         color: '#6B7280',
         textAlign: 'center',
-        marginTop: 8,
+        marginTop: 15,
         marginBottom: 35,
     },
 
     inputContainer: {
         marginBottom: 20,
+
     },
 
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
+        color: '#460404',
         marginBottom: 8,
     },
 
