@@ -9,20 +9,23 @@ import {
     Image,
 } from 'react-native';
 
-const LoginScreen = () => {
+type LoginScreenProps = {
+    setIsLoggedIn: (value: boolean) => void;
+};
+
+const LoginScreen = ({ setIsLoggedIn }: LoginScreenProps) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        console.log('Email:', email);
-        console.log('Password:', password);
+        setIsLoggedIn(true);
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
 
-                {/* Logo / App Name */}
+                {/* Logo */}
                 <Image
                     source={require('../assets/logo.png')}
                     style={styles.logo}
@@ -30,11 +33,12 @@ const LoginScreen = () => {
 
                 {/* Heading */}
                 <Text style={styles.title}>Welcome Back</Text>
+
                 <Text style={styles.subtitle}>
                     Login to your account
                 </Text>
 
-                {/* Email */}
+                {/* Email / Employee ID */}
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Email / Employee ID</Text>
 
@@ -84,13 +88,13 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#FFFFFF',
     },
 
     content: {
         flex: 1,
         paddingHorizontal: 25,
-        justifyContent: 'center',
+        paddingTop: 80,
     },
 
     logo: {
@@ -99,7 +103,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         resizeMode: 'contain',
         marginBottom: 30,
-        marginRight: 20,
     },
 
     title: {
@@ -107,8 +110,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#111827',
         textAlign: 'center',
-        marginRight: 20,
-        marginLeft: 20,
     },
 
     subtitle: {
@@ -121,7 +122,6 @@ const styles = StyleSheet.create({
 
     inputContainer: {
         marginBottom: 20,
-
     },
 
     label: {
