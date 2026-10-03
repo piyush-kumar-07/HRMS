@@ -70,10 +70,14 @@ const HomeScreen = () => {
                 <View style={styles.attendanceRow}>
 
                     {/* Present */}
-                    <View style={[styles.attendanceCard, styles.presentCard]}>
-                        <Text style={styles.cardTitle}>
-                            Present
-                        </Text>
+                    <View style={styles.attendanceCard}>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>
+                                Present
+                            </Text>
+
+                            <View style={styles.presentIndicator} />
+                        </View>
 
                         <Text style={styles.cardNumber}>
                             42
@@ -85,10 +89,14 @@ const HomeScreen = () => {
                     </View>
 
                     {/* On Leave */}
-                    <View style={[styles.attendanceCard, styles.leaveCard]}>
-                        <Text style={styles.cardTitle}>
-                            On Leave
-                        </Text>
+                    <View style={styles.attendanceCard}>
+                        <View style={styles.cardHeader}>
+                            <Text style={styles.cardTitle}>
+                                On Leave
+                            </Text>
+
+                            <View style={styles.leaveIndicator} />
+                        </View>
 
                         <Text style={styles.cardNumber}>
                             5
@@ -102,20 +110,24 @@ const HomeScreen = () => {
                 </View>
 
                 {/* Absent */}
-                <View style={[styles.absentCard, styles.absentStatusCard]}>
-                    <View>
+                <View style={styles.absentCard}>
+
+                    <View style={styles.cardHeader}>
                         <Text style={styles.cardTitle}>
                             Absent
                         </Text>
 
-                        <Text style={styles.cardNumber}>
-                            3
-                        </Text>
+                        <View style={styles.absentIndicator} />
                     </View>
+
+                    <Text style={styles.cardNumber}>
+                        3
+                    </Text>
 
                     <Text style={styles.cardTotal}>
                         Employees
                     </Text>
+
                 </View>
 
                 {/* Active Requests */}
@@ -193,17 +205,31 @@ const styles = StyleSheet.create({
     },
 
     content: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         paddingBottom: 30,
     },
 
     /* Header */
 
     header: {
-        height: 60,
+        height: 64,
         flexDirection: 'row',
         alignItems: 'center',
+        marginTop: 30,
         justifyContent: 'space-between',
+        backgroundColor: "#FFFFFF",
+        paddingHorizontal: 2,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        marginBottom: 10,
+        borderRadius: 10,
+        paddingTop: 6,
     },
 
     companySection: {
@@ -299,79 +325,80 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#2563EB',
         fontWeight: '600',
-    },
-
-    /* Attendance */
-
-    attendanceRow: {
+    }, attendanceRow: {
         flexDirection: 'row',
     },
-    presentCard: {
-        backgroundColor: '#F0FDF4',
-        borderColor: '#BBF7D0',
-    },
-
-    leaveCard: {
-        backgroundColor: '#FFFBEB',
-        borderColor: '#FDE68A',
-    },
-
-    absentStatusCard: {
-        backgroundColor: '#FEF2F2',
-        borderColor: '#FECACA',
-    },
-
 
     attendanceCard: {
         flex: 1,
         minHeight: 120,
         borderWidth: 1,
-        color: "#000",
         borderColor: '#E5E7EB',
         borderRadius: 12,
         padding: 16,
-        justifyContent: 'center',
-        gap: 6,
         marginRight: 10,
     },
 
-    attendanceCardSecond: {
-        marginLeft: 12,
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
 
     cardTitle: {
         fontSize: 14,
-        color: '#0f54dd',
-        fontWeight: '500',
+        color: '#2563EB',
+        fontWeight: '600',
     },
 
     cardNumber: {
         fontSize: 30,
         fontWeight: '700',
         color: '#111827',
-        marginTop: 5,
+        marginTop: 12,
     },
 
     cardTotal: {
         fontSize: 12,
-        color: '#0f54dd',
-        marginTop: 4,
+        color: '#2563EB',
+        marginTop: 2,
     },
 
     /* Absent */
 
     absentCard: {
-        minHeight: 90,
+        minHeight: 120,
         borderWidth: 1,
         borderColor: '#E5E7EB',
         borderRadius: 12,
         marginTop: 12,
         marginBottom: 25,
         padding: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
     },
+
+    /* Status indicators */
+
+    presentIndicator: {
+        width: 15,
+        height: 15,
+        borderRadius: 7.5,
+        backgroundColor: '#22C55E',
+    },
+
+    leaveIndicator: {
+        width: 15,
+        height: 15,
+        borderRadius: 7.5,
+        backgroundColor: '#EAB308',
+    },
+
+    absentIndicator: {
+        width: 15,
+        height: 15,
+        borderRadius: 7.5,
+        backgroundColor: '#EF4444',
+    },
+
 
     /* Active Requests */
 
