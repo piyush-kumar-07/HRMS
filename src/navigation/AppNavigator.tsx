@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 
 import HomeScreen from '../screens/HomeScreen';
-import EmployeesScreen from '../screens/EmployeesScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 
+import SettingsScreen from '../screens/SettingsScreen';
+import EmployeeNavigator from './EmployeeNavigator';
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
@@ -53,9 +53,10 @@ const AppNavigator = () => {
                 component={HomeScreen}
             />
 
+
             <Tab.Screen
                 name="Employees"
-                component={EmployeesScreen}
+                component={EmployeeNavigator}
             />
 
             <Tab.Screen
