@@ -196,6 +196,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         color: '#111827',
+        marginTop: 40,
     },
 
     headerSpace: {
@@ -231,13 +232,13 @@ const styles = StyleSheet.create({
 
     candidateId: {
         fontSize: 13,
-        color: '#6B7280',
+        color: '#2563EB',
         marginTop: 4,
     },
 
     candidateDesignation: {
         fontSize: 13,
-        color: '#6B7280',
+        color: '#2563EB',
         marginTop: 5,
     },
 

@@ -7,6 +7,8 @@ import {
     TouchableOpacity,
     FlatList,
     StyleSheet,
+    Modal,
+    Pressable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,12 +22,33 @@ type Employee = {
     status: EmployeeStatus;
 };
 
+type RecruitmentStage =
+    | 'Resume Collection'
+    | 'First Round Interview'
+    | 'Final Round Interview'
+    | 'Director Round Interview'
+    | 'Offer Letter'
+    | 'Acceptance by Selected Candidates'
+    | 'Appointment Letter Distribution'
+    | 'Department Allocation';
+
 type Candidate = {
     id: string;
     name: string;
     designation: string;
-    stage: string;
+    stage: RecruitmentStage;
 };
+
+const recruitmentStages: RecruitmentStage[] = [
+    'Resume Collection',
+    'First Round Interview',
+    'Final Round Interview',
+    'Director Round Interview',
+    'Offer Letter',
+    'Acceptance by Selected Candidates',
+    'Appointment Letter Distribution',
+    'Department Allocation',
+];
 
 const employees: Employee[] = [
     {
@@ -245,37 +268,37 @@ const candidates: Candidate[] = [
         id: 'CAN001',
         name: 'Rohit Sharma',
         designation: 'Security Guard',
-        stage: 'Application Received',
+        stage: 'Resume Collection',
     },
     {
         id: 'CAN002',
         name: 'Vivek Kumar',
         designation: 'Security Guard',
-        stage: 'Shortlisted',
+        stage: 'First Round Interview',
     },
     {
         id: 'CAN003',
         name: 'Arjun Singh',
         designation: 'Supervisor',
-        stage: 'Document Verification',
+        stage: 'Final Round Interview',
     },
     {
         id: 'CAN004',
         name: 'Manish Kumar',
         designation: 'Security Guard',
-        stage: 'Interview',
+        stage: 'Director Round Interview',
     },
     {
         id: 'CAN005',
         name: 'Sanjay Sharma',
         designation: 'Security Guard',
-        stage: 'Management Approval',
+        stage: 'Offer Letter',
     },
     {
         id: 'CAN006',
         name: 'Akash Singh',
         designation: 'Supervisor',
-        stage: 'Offer Letter',
+        stage: 'Acceptance by Selected Candidates',
     },
 ];
 
@@ -292,6 +315,12 @@ const EmployeesScreen = () => {
     const [selectedFilter, setSelectedFilter] = useState<
         'all' | EmployeeStatus
     >('all');
+
+    const [selectedRecruitmentStage, setSelectedRecruitmentStage] =
+        useState<'all' | RecruitmentStage>('all');
+
+    const [isStageDropdownOpen, setIsStageDropdownOpen] =
+        useState(false);
 
     // -----------------------------
     // Employee Filtering
@@ -322,14 +351,19 @@ const EmployeesScreen = () => {
         return candidates.filter(candidate => {
             const search = candidateSearch.toLowerCase();
 
-            return (
+            const matchesSearch =
                 candidate.name.toLowerCase().includes(search) ||
                 candidate.id.toLowerCase().includes(search) ||
                 candidate.designation.toLowerCase().includes(search) ||
-                candidate.stage.toLowerCase().includes(search)
-            );
+                candidate.stage.toLowerCase().includes(search);
+
+            const matchesStage =
+                selectedRecruitmentStage === 'all' ||
+                candidate.stage === selectedRecruitmentStage;
+
+            return matchesSearch && matchesStage;
         });
-    }, [candidateSearch]);
+    }, [candidateSearch, selectedRecruitmentStage]);
 
     // -----------------------------
     // Status Helpers
@@ -368,9 +402,9 @@ const EmployeesScreen = () => {
             <TouchableOpacity
                 style={styles.employeeCard}
                 onPress={() =>
-                    navigation.navigate('EmployeeProfile' as never, {
+                    navigation.navigate('EmployeeProfile', {
                         employee: item,
-                    } as never)
+                    })
                 }>
 
                 <View style={styles.employeeInfo}>
@@ -406,6 +440,7 @@ const EmployeesScreen = () => {
                         {getStatusText(item.status)}
                     </Text>
                 </View>
+
             </TouchableOpacity>
         );
     };
@@ -413,6 +448,7 @@ const EmployeesScreen = () => {
     // -----------------------------
     // Candidate Card
     // -----------------------------
+
     const renderCandidate = ({ item }: { item: Candidate }) => {
         return (
             <TouchableOpacity
@@ -472,7 +508,10 @@ const EmployeesScreen = () => {
                         activeSection === 'employees' &&
                         styles.activeSectionButton,
                     ]}
-                    onPress={() => setActiveSection('employees')}>
+                    onPress={() => {
+                        setActiveSection('employees');
+                        setIsStageDropdownOpen(false);
+                    }}>
 
                     <Text
                         style={[
@@ -491,7 +530,9 @@ const EmployeesScreen = () => {
                         activeSection === 'recruitment' &&
                         styles.activeSectionButton,
                     ]}
-                    onPress={() => setActiveSection('recruitment')}>
+                    onPress={() =>
+                        setActiveSection('recruitment')
+                    }>
 
                     <Text
                         style={[
@@ -510,6 +551,7 @@ const EmployeesScreen = () => {
 
             {activeSection === 'employees' ? (
                 <>
+
                     {/* Employee Search */}
 
                     <View style={styles.searchContainer}>
@@ -528,7 +570,7 @@ const EmployeesScreen = () => {
 
                     </View>
 
-                    {/* Filters */}
+                    {/* Employee Filters */}
 
                     <View style={styles.filterRow}>
 
@@ -661,9 +703,11 @@ const EmployeesScreen = () => {
                             </Text>
                         }
                     />
+
                 </>
             ) : (
                 <>
+
                     {/* Candidate Search */}
 
                     <View style={styles.searchContainer}>
@@ -682,6 +726,33 @@ const EmployeesScreen = () => {
 
                     </View>
 
+                    {/* Recruitment Stage Dropdown */}
+
+                    <TouchableOpacity
+                        style={styles.dropdownButton}
+                        onPress={() =>
+                            setIsStageDropdownOpen(true)
+                        }>
+
+                        <Text
+                            style={[
+                                styles.dropdownText,
+                                selectedRecruitmentStage === 'all' &&
+                                styles.dropdownPlaceholder,
+                            ]}>
+
+                            {selectedRecruitmentStage === 'all'
+                                ? 'All Recruitment Stages'
+                                : selectedRecruitmentStage}
+
+                        </Text>
+
+                        <Text style={styles.dropdownArrow}>
+                            ▼
+                        </Text>
+
+                    </TouchableOpacity>
+
                     {/* Candidate List */}
 
                     <FlatList
@@ -696,6 +767,88 @@ const EmployeesScreen = () => {
                             </Text>
                         }
                     />
+
+                    {/* Recruitment Stage Modal */}
+
+                    <Modal
+                        visible={isStageDropdownOpen}
+                        transparent
+                        animationType="fade"
+                        onRequestClose={() =>
+                            setIsStageDropdownOpen(false)
+                        }>
+
+                        <Pressable
+                            style={styles.modalOverlay}
+                            onPress={() =>
+                                setIsStageDropdownOpen(false)
+                            }>
+
+                            <Pressable
+                                style={styles.dropdownModal}
+                                onPress={event =>
+                                    event.stopPropagation()
+                                }>
+
+                                <Text style={styles.dropdownTitle}>
+                                    Recruitment Stage
+                                </Text>
+
+                                {/* All */}
+
+                                <TouchableOpacity
+                                    style={styles.dropdownItem}
+                                    onPress={() => {
+                                        setSelectedRecruitmentStage(
+                                            'all',
+                                        );
+                                        setIsStageDropdownOpen(false);
+                                    }}>
+
+                                    <Text
+                                        style={[
+                                            styles.dropdownItemText,
+                                            selectedRecruitmentStage ===
+                                            'all' &&
+                                            styles.selectedDropdownItemText,
+                                        ]}>
+                                        All Recruitment Stages
+                                    </Text>
+
+                                </TouchableOpacity>
+
+                                {/* Stages */}
+
+                                {recruitmentStages.map(stage => (
+                                    <TouchableOpacity
+                                        key={stage}
+                                        style={styles.dropdownItem}
+                                        onPress={() => {
+                                            setSelectedRecruitmentStage(
+                                                stage,
+                                            );
+                                            setIsStageDropdownOpen(false);
+                                        }}>
+
+                                        <Text
+                                            style={[
+                                                styles.dropdownItemText,
+                                                selectedRecruitmentStage ===
+                                                stage &&
+                                                styles.selectedDropdownItemText,
+                                            ]}>
+                                            {stage}
+                                        </Text>
+
+                                    </TouchableOpacity>
+                                ))}
+
+                            </Pressable>
+
+                        </Pressable>
+
+                    </Modal>
+
                 </>
             )}
 
@@ -786,7 +939,7 @@ const styles = StyleSheet.create({
         color: '#111827',
     },
 
-    /* Filters */
+    /* Employee Filters */
 
     filterRow: {
         flexDirection: 'row',
@@ -838,6 +991,86 @@ const styles = StyleSheet.create({
 
     leaveIndicator: {
         backgroundColor: '#EAB308',
+    },
+
+    /* Recruitment Dropdown */
+
+    dropdownButton: {
+        height: 50,
+        borderWidth: 1,
+        borderColor: '#bbbdbf',
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#FFFFFF',
+        marginBottom: 14,
+    },
+
+    dropdownText: {
+        flex: 1,
+        fontSize: 14,
+        color: '#111827',
+        fontWeight: '500',
+    },
+
+    dropdownPlaceholder: {
+        color: '#6B7280',
+    },
+
+    dropdownArrow: {
+        fontSize: 12,
+        color: '#6B7280',
+        marginLeft: 10,
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.25)',
+        justifyContent: 'center',
+        paddingHorizontal: 25,
+    },
+
+    dropdownModal: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
+        paddingVertical: 8,
+        maxHeight: '75%',
+        elevation: 8,
+        shadowColor: '#000000',
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+    },
+
+    dropdownTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#111827',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+
+    dropdownItem: {
+        minHeight: 45,
+        paddingHorizontal: 16,
+        justifyContent: 'center',
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
+    },
+
+    dropdownItemText: {
+        fontSize: 13,
+        color: '#374151',
+    },
+
+    selectedDropdownItemText: {
+        color: '#2563EB',
+        fontWeight: '600',
     },
 
     /* Lists */
@@ -909,7 +1142,7 @@ const styles = StyleSheet.create({
 
     statusText: {
         fontSize: 11,
-        color: '#6B7280',
+        color: '#2563Eb',
     },
 
     /* Candidate Card */
@@ -956,7 +1189,7 @@ const styles = StyleSheet.create({
 
     stageLabel: {
         fontSize: 10,
-        color: '#9CA3AF',
+        color: '#2563Eb',
         marginBottom: 5,
     },
 
