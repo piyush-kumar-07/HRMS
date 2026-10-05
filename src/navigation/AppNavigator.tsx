@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 
 import HomeScreen from '../screens/HomeScreen';
-
-import SettingsScreen from '../screens/SettingsScreen';
 import EmployeeNavigator from './EmployeeNavigator';
+import SettingsNavigator from './SettingsNavigator';
+
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
@@ -13,7 +13,6 @@ const AppNavigator = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
-
                 tabBarActiveTintColor: '#2563EB',
                 tabBarInactiveTintColor: '#6B7280',
 
@@ -53,7 +52,6 @@ const AppNavigator = () => {
                 component={HomeScreen}
             />
 
-
             <Tab.Screen
                 name="Employees"
                 component={EmployeeNavigator}
@@ -61,7 +59,7 @@ const AppNavigator = () => {
 
             <Tab.Screen
                 name="Settings"
-                component={SettingsScreen}
+                component={SettingsNavigator}
             />
 
         </Tab.Navigator>
