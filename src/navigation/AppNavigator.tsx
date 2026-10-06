@@ -5,6 +5,7 @@ import MaterialIcons from '@react-native-vector-icons/material-icons';
 import HomeScreen from '../screens/HomeScreen';
 import EmployeeNavigator from './EmployeeNavigator';
 import SettingsNavigator from './SettingsNavigator';
+import PayrollNavigator from './PayrollNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -37,16 +38,29 @@ const AppNavigator = () => {
                         );
                     }
 
-                    return (
-                        <MaterialIcons
-                            name="settings"
-                            size={size}
-                            color={color}
-                        />
-                    );
+                    if (route.name === 'Payroll') {
+                        return (
+                            <MaterialIcons
+                                name="payments"
+                                size={size}
+                                color={color}
+                            />
+                        );
+                    }
+
+                    if (route.name === 'Settings') {
+                        return (
+                            <MaterialIcons
+                                name="settings"
+                                size={size}
+                                color={color}
+                            />
+                        );
+                    }
+
+                    return null;
                 },
             })}>
-
             <Tab.Screen
                 name="Dashboard"
                 component={HomeScreen}
@@ -58,10 +72,14 @@ const AppNavigator = () => {
             />
 
             <Tab.Screen
+                name="Payroll"
+                component={PayrollNavigator}
+            />
+
+            <Tab.Screen
                 name="Settings"
                 component={SettingsNavigator}
             />
-
         </Tab.Navigator>
     );
 };

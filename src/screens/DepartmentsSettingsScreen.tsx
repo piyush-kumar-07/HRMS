@@ -187,7 +187,14 @@ const DepartmentsSettingsScreen = ({ navigation }: any) => {
 
     const renderDepartment = ({ item }: { item: Department }) => {
         return (
-            <View style={styles.departmentCard}>
+            <TouchableOpacity
+                style={styles.departmentCard}
+                activeOpacity={0.7}
+                onPress={() =>
+                    navigation.navigate('DepartmentDetails', {
+                        department: item,
+                    })
+                }>
                 <View style={styles.departmentIcon}>
                     <MaterialIcons
                         name="business"
@@ -227,7 +234,7 @@ const DepartmentsSettingsScreen = ({ navigation }: any) => {
                         />
                     </TouchableOpacity>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 

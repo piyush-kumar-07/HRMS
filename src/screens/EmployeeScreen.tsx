@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import {
     SafeAreaView,
     View,
@@ -10,7 +10,7 @@ import {
     Modal,
     Pressable,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type EmployeeStatus = 'present' | 'absent' | 'leave';
 
@@ -50,7 +50,7 @@ const recruitmentStages: RecruitmentStage[] = [
     'Department Allocation',
 ];
 
-const employees: Employee[] = [
+export const employees: Employee[] = [
     {
         id: 'BARC001',
         name: 'Rahul Kumar',
@@ -62,7 +62,7 @@ const employees: Employee[] = [
         id: 'BARC002',
         name: 'Amit Kumar',
         designation: 'Security Guard',
-        department: 'Security',
+        department: 'Accounts',
         status: 'absent',
     },
     {
@@ -76,7 +76,7 @@ const employees: Employee[] = [
         id: 'BARC004',
         name: 'Ravi Sharma',
         designation: 'Security Guard',
-        department: 'Security',
+        department: 'Kitchen',
         status: 'leave',
     },
     {
@@ -90,7 +90,7 @@ const employees: Employee[] = [
         id: 'BARC006',
         name: 'Manoj Singh',
         designation: 'Supervisor',
-        department: 'Operations',
+        department: 'Sales & Marketing',
         status: 'present',
     },
     {
@@ -304,12 +304,22 @@ const candidates: Candidate[] = [
 
 const EmployeesScreen = () => {
     const navigation = useNavigation<any>();
+    const route = useRoute<any>();
 
     const [activeSection, setActiveSection] = useState<
         'employees' | 'recruitment'
     >('employees');
 
     const [employeeSearch, setEmployeeSearch] = useState('');
+
+    useEffect(() => {
+        const searchFromDashboard = route.params?.search;
+
+        if (typeof searchFromDashboard === 'string') {
+            setEmployeeSearch(searchFromDashboard);
+            setActiveSection('employees');
+        }
+    }, [route.params?.search]);
     const [candidateSearch, setCandidateSearch] = useState('');
 
     const [selectedFilter, setSelectedFilter] = useState<

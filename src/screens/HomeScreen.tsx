@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     View,
@@ -8,9 +8,38 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
+    Keyboard,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
+    const navigation = useNavigation<any>();
+
+    const [search, setSearch] = useState('');
+    const openEmployees = () => {
+        Keyboard.dismiss();
+
+        navigation.navigate('Employees');
+    };
+
+    const searchEmployees = () => {
+        const searchText = search.trim();
+
+        Keyboard.dismiss();
+
+        if (!searchText) {
+            navigation.navigate('Employees');
+            return;
+        }
+
+        navigation.navigate('Employees', {
+            screen: 'EmployeeList',
+            params: {
+                search: searchText,
+            },
+        });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView
@@ -50,7 +79,27 @@ const HomeScreen = () => {
                         style={styles.searchInput}
                         placeholder="Search employees..."
                         placeholderTextColor="#6B7280"
+                        value={search}
+                        onChangeText={setSearch}
+                        returnKeyType="search"
+                        onSubmitEditing={searchEmployees}
                     />
+
+                    {search.length > 0 && (
+                        <TouchableOpacity
+                            onPress={() => setSearch('')}
+                            style={styles.clearButton}>
+                            <Text style={styles.clearText}>×</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    <TouchableOpacity
+                        style={styles.searchButton}
+                        onPress={searchEmployees}>
+                        <Text style={styles.searchButtonText}>
+                            Search
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Today's Attendance */}
@@ -59,7 +108,7 @@ const HomeScreen = () => {
                         Today's Attendance
                     </Text>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={openEmployees}>
                         <Text style={styles.viewAll}>
                             View All
                         </Text>
@@ -106,12 +155,10 @@ const HomeScreen = () => {
                             Employees
                         </Text>
                     </View>
-
                 </View>
 
                 {/* Absent */}
                 <View style={styles.absentCard}>
-
                     <View style={styles.cardHeader}>
                         <Text style={styles.cardTitle}>
                             Absent
@@ -127,7 +174,6 @@ const HomeScreen = () => {
                     <Text style={styles.cardTotal}>
                         Employees
                     </Text>
-
                 </View>
 
                 {/* Active Requests */}
@@ -143,7 +189,6 @@ const HomeScreen = () => {
 
                 {/* Leave Request */}
                 <TouchableOpacity style={styles.requestCard}>
-
                     <View style={styles.requestIconContainer}>
                         <Text style={styles.requestIcon}>
                             🟡
@@ -167,7 +212,6 @@ const HomeScreen = () => {
                     <Text style={styles.reviewText}>
                         Review →
                     </Text>
-
                 </TouchableOpacity>
 
                 {/* Recent Activity */}
@@ -176,7 +220,6 @@ const HomeScreen = () => {
                 </Text>
 
                 <View style={styles.activityCard}>
-
                     <Text style={styles.activityItem}>
                         • New employee added
                     </Text>
@@ -188,7 +231,6 @@ const HomeScreen = () => {
                     <Text style={styles.activityItem}>
                         • Employee profile updated
                     </Text>
-
                 </View>
 
             </ScrollView>
@@ -209,18 +251,16 @@ const styles = StyleSheet.create({
         paddingBottom: 30,
     },
 
-    /* Header */
-
     header: {
         height: 64,
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 30,
         justifyContent: 'space-between',
-        backgroundColor: "#FFFFFF",
+        backgroundColor: '#FFFFFF',
         paddingHorizontal: 2,
         elevation: 2,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,
@@ -271,8 +311,6 @@ const styles = StyleSheet.create({
         fontSize: 21,
     },
 
-    /* Dashboard */
-
     dashboardTitle: {
         fontSize: 28,
         fontWeight: '700',
@@ -281,8 +319,6 @@ const styles = StyleSheet.create({
         marginBottom: 18,
     },
 
-    /* Search */
-
     searchContainer: {
         height: 50,
         borderWidth: 1,
@@ -290,13 +326,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
+        paddingHorizontal: 12,
         marginBottom: 25,
     },
 
     searchIcon: {
         fontSize: 18,
-        marginRight: 10,
+        marginRight: 8,
     },
 
     searchInput: {
@@ -305,7 +341,31 @@ const styles = StyleSheet.create({
         color: '#111827',
     },
 
-    /* Section */
+    clearButton: {
+        width: 28,
+        height: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    clearText: {
+        fontSize: 22,
+        color: '#6B7280',
+        lineHeight: 22,
+    },
+
+    searchButton: {
+        paddingHorizontal: 10,
+        paddingVertical: 7,
+        borderRadius: 7,
+        backgroundColor: '#2563EB',
+    },
+
+    searchButtonText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
+    },
 
     sectionHeader: {
         flexDirection: 'row',
@@ -325,7 +385,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#2563EB',
         fontWeight: '600',
-    }, attendanceRow: {
+    },
+
+    attendanceRow: {
         flexDirection: 'row',
     },
 
@@ -364,8 +426,6 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
 
-    /* Absent */
-
     absentCard: {
         minHeight: 120,
         borderWidth: 1,
@@ -375,8 +435,6 @@ const styles = StyleSheet.create({
         marginBottom: 25,
         padding: 16,
     },
-
-    /* Status indicators */
 
     presentIndicator: {
         width: 15,
@@ -398,9 +456,6 @@ const styles = StyleSheet.create({
         borderRadius: 7.5,
         backgroundColor: '#EF4444',
     },
-
-
-    /* Active Requests */
 
     requestCount: {
         fontSize: 14,
@@ -466,8 +521,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#2563EB',
     },
-
-    /* Recent Activity */
 
     activityCard: {
         borderWidth: 1,
