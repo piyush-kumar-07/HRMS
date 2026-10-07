@@ -882,13 +882,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginTop: 20,
     },
 
     headerTitle: {
         fontSize: 28,
         fontWeight: '700',
         color: '#111827',
-        marginTop: 20,
+
     },
 
     /* Section Switch */

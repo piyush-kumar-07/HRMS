@@ -228,6 +228,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         color: '#111827',
+        marginTop: 20,
     },
 
     headerSpace: {
