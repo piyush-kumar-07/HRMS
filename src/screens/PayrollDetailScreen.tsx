@@ -377,7 +377,14 @@ const styles = StyleSheet.create({
     },
 
     headerTextContainer: {
-        marginLeft: 12,
+        marginLeft: 3,
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#111827',
+        marginTop: 15,
+        marginRight: 15,
+
+
     },
 
     title: {

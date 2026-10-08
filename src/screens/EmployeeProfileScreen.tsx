@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
+    Alert,
 } from 'react-native';
 
 type EmployeeProfileProps = {
@@ -19,9 +20,18 @@ const EmployeeProfileScreen = ({
 }: EmployeeProfileProps) => {
     const employee = route.params.employee;
 
+    const showComingSoon = (feature: string) => {
+        Alert.alert(
+            'Coming Soon',
+            `${feature} will be available in a future update.`,
+            [{ text: 'OK' }],
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView
+                keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.content}>
 
@@ -130,7 +140,11 @@ const EmployeeProfileScreen = ({
                     Attendance
                 </Text>
 
-                <TouchableOpacity style={styles.actionCard}>
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}
+                    onPress={() => showComingSoon('Attendance History')}>
+
                     <View>
                         <Text style={styles.actionTitle}>
                             Attendance History
@@ -146,12 +160,66 @@ const EmployeeProfileScreen = ({
                     </Text>
                 </TouchableOpacity>
 
+                {/* Leave History */}
+                <Text style={styles.sectionTitle}>
+                    Leave History
+                </Text>
+
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}
+                    onPress={() => showComingSoon('Leave History')}>
+
+                    <View>
+                        <Text style={styles.actionTitle}>
+                            Leave History
+                        </Text>
+
+                        <Text style={styles.actionSubtitle}>
+                            View employee leave records
+                        </Text>
+                    </View>
+
+                    <Text style={styles.arrow}>
+                        →
+                    </Text>
+                </TouchableOpacity>
+
+                {/* Payroll History */}
+                <Text style={styles.sectionTitle}>
+                    Payroll
+                </Text>
+
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}
+                    onPress={() => showComingSoon('Payroll History')}>
+
+                    <View>
+                        <Text style={styles.actionTitle}>
+                            Payroll History
+                        </Text>
+
+                        <Text style={styles.actionSubtitle}>
+                            View employee salary and payroll records
+                        </Text>
+                    </View>
+
+                    <Text style={styles.arrow}>
+                        →
+                    </Text>
+                </TouchableOpacity>
+
                 {/* Documents */}
                 <Text style={styles.sectionTitle}>
                     Documents
                 </Text>
 
-                <TouchableOpacity style={styles.actionCard}>
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}
+                    onPress={() => showComingSoon('Employee Documents')}>
+
                     <View>
                         <Text style={styles.actionTitle}>
                             Employee Documents
@@ -228,7 +296,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         color: '#111827',
-        marginTop: 20,
+        marginTop: 30,
     },
 
     headerSpace: {

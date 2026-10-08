@@ -20,12 +20,61 @@ const AppNavigator = () => {
                 tabBarActiveTintColor: '#2563EB',
                 tabBarInactiveTintColor: '#6B7280',
 
+                tabBarShowLabel: true,
+
+                tabBarStyle: {
+                    position: 'absolute',
+
+                    left: 16,
+                    right: 16,
+                    bottom: 25,
+
+                    height: 72,
+
+                    backgroundColor: '#FFFFFF',
+
+                    borderRadius: 70,
+
+                    borderTopWidth: 0,
+
+                    paddingHorizontal: 8,
+                    paddingTop: 6,
+                    paddingBottom: 8,
+
+                    elevation: 15,
+
+                    shadowColor: '#000000',
+                    shadowOffset: {
+                        width: 0,
+                        height: 4,
+                    },
+                    shadowOpacity: 0.12,
+                    shadowRadius: 10,
+                },
+
+                tabBarItemStyle: {
+                    borderRadius: 18,
+                    marginHorizontal: 3,
+                    marginVertical: 3,
+
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                },
+
+                tabBarActiveBackgroundColor: '#EFF6FF',
+
+                tabBarLabelStyle: {
+                    fontSize: 11,
+                    fontWeight: '600',
+                    marginTop: 2,
+                },
+
                 tabBarIcon: ({ color, size }) => {
                     if (route.name === 'Dashboard') {
                         return (
                             <MaterialIcons
                                 name="dashboard"
-                                size={size}
+                                size={23}
                                 color={color}
                             />
                         );
@@ -35,7 +84,7 @@ const AppNavigator = () => {
                         return (
                             <MaterialIcons
                                 name="people"
-                                size={size}
+                                size={23}
                                 color={color}
                             />
                         );
@@ -45,7 +94,7 @@ const AppNavigator = () => {
                         return (
                             <MaterialIcons
                                 name="payments"
-                                size={size}
+                                size={23}
                                 color={color}
                             />
                         );
@@ -55,7 +104,7 @@ const AppNavigator = () => {
                         return (
                             <MaterialIcons
                                 name="settings"
-                                size={size}
+                                size={23}
                                 color={color}
                             />
                         );
@@ -64,6 +113,7 @@ const AppNavigator = () => {
                     return null;
                 },
             })}>
+
             <Tab.Screen
                 name="Dashboard"
                 component={DashboardNavigator}
@@ -83,6 +133,7 @@ const AppNavigator = () => {
                 name="Settings"
                 component={SettingsNavigator}
             />
+
         </Tab.Navigator>
     );
 };
