@@ -454,6 +454,19 @@ const EmployeesScreen = () => {
             </TouchableOpacity>
         );
     };
+    React.useEffect(() => {
+        const filter = route.params?.filter;
+
+        if (
+            filter === 'present' ||
+            filter === 'absent' ||
+            filter === 'leave'
+        ) {
+            setActiveSection('employees');
+            setEmployeeSearch('');
+            setSelectedFilter(filter);
+        }
+    }, [route.params?.filter]);
 
     // -----------------------------
     // Candidate Card

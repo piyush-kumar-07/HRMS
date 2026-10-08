@@ -17,7 +17,7 @@ const AppNavigator = () => {
             screenOptions={({ route }) => ({
                 headerShown: false,
 
-                tabBarActiveTintColor: '#2563EB',
+                tabBarActiveTintColor: '#2d69ea',
                 tabBarInactiveTintColor: '#6B7280',
 
                 tabBarShowLabel: true,
@@ -61,7 +61,7 @@ const AppNavigator = () => {
                     alignItems: 'center',
                 },
 
-                tabBarActiveBackgroundColor: '#EFF6FF',
+                tabBarActiveBackgroundColor: '#deeafb',
 
                 tabBarLabelStyle: {
                     fontSize: 11,
