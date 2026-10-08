@@ -1,11 +1,13 @@
 import React from 'react';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import MaterialIcons from '@react-native-vector-icons/material-icons';
 
-import HomeScreen from '../screens/HomeScreen';
+import DashboardNavigator from './DashboardNavigator';
 import EmployeeNavigator from './EmployeeNavigator';
-import SettingsNavigator from './SettingsNavigator';
 import PayrollNavigator from './PayrollNavigator';
+import SettingsNavigator from './SettingsNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,6 +16,7 @@ const AppNavigator = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
+
                 tabBarActiveTintColor: '#2563EB',
                 tabBarInactiveTintColor: '#6B7280',
 
@@ -63,7 +66,7 @@ const AppNavigator = () => {
             })}>
             <Tab.Screen
                 name="Dashboard"
-                component={HomeScreen}
+                component={DashboardNavigator}
             />
 
             <Tab.Screen

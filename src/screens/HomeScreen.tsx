@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
     const navigation = useNavigation<any>();
+    const pendingRequests = 3;
 
     const [search, setSearch] = useState('');
     const openEmployees = () => {
@@ -61,8 +62,23 @@ const HomeScreen = () => {
                         </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.notificationButton}>
+
+                    <TouchableOpacity
+                        style={styles.notificationButton}
+                        activeOpacity={0.75}
+                        onPress={() => navigation.navigate('ActiveRequests')}>
+
                         <Text style={styles.notificationIcon}>🔔</Text>
+
+                        {pendingRequests > 0 && (
+                            <View style={styles.notificationBadge}>
+                                {pendingRequests < 4 ? (
+                                    <Text style={styles.notificationBadgeText}>
+                                        {pendingRequests}
+                                    </Text>
+                                ) : null}
+                            </View>
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -177,6 +193,8 @@ const HomeScreen = () => {
                 </View>
 
                 {/* Active Requests */}
+                {/* Active Requests */}
+
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>
                         Active Requests
@@ -187,8 +205,11 @@ const HomeScreen = () => {
                     </Text>
                 </View>
 
-                {/* Leave Request */}
-                <TouchableOpacity style={styles.requestCard}>
+                <TouchableOpacity
+                    style={styles.requestCard}
+                    activeOpacity={0.75}
+                    onPress={() => navigation.navigate('ActiveRequests')}>
+
                     <View style={styles.requestIconContainer}>
                         <Text style={styles.requestIcon}>
                             🟡
@@ -212,8 +233,8 @@ const HomeScreen = () => {
                     <Text style={styles.reviewText}>
                         Review →
                     </Text>
-                </TouchableOpacity>
 
+                </TouchableOpacity>
                 {/* Recent Activity */}
                 <Text style={styles.sectionTitle}>
                     Recent Activity
@@ -333,6 +354,26 @@ const styles = StyleSheet.create({
     searchIcon: {
         fontSize: 18,
         marginRight: 8,
+    },
+    notificationBadge: {
+        position: 'absolute',
+        top: 3,
+        right: 3,
+        minWidth: 16,
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: '#EF4444',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 3,
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+    },
+
+    notificationBadgeText: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: '#FFFFFF',
     },
 
     searchInput: {
