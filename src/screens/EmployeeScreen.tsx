@@ -19,8 +19,15 @@ type Employee = {
     name: string;
     designation: string;
     department: string;
-    status: EmployeeStatus;
+    status: 'present' | 'absent' | 'leave';
+    previousWork?: {
+        companyName: string;
+        period: string;
+        role: string;
+        contact: number;
+    };
 };
+
 
 type RecruitmentStage =
     | 'Resume Collection'
@@ -57,6 +64,13 @@ export const employees: Employee[] = [
         designation: 'Security Guard',
         department: 'Security',
         status: 'present',
+        previousWork: {
+            companyName: 'ABC Security Services',
+            period: 'Jan 2022 – Dec 2024',
+            role: 'Security Guard',
+            contact: 1234567890
+        },
+
     },
     {
         id: 'BARC002',

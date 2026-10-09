@@ -19,6 +19,9 @@ const CandidateProfileScreen = ({
 }: CandidateProfileProps) => {
     const candidate = route.params.candidate;
 
+    // Optional previous employment details
+    const previousWork = candidate.previousWork ?? null;
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView
@@ -26,16 +29,11 @@ const CandidateProfileScreen = ({
                 contentContainerStyle={styles.content}>
 
                 {/* Header */}
-
                 <View style={styles.header}>
                     <TouchableOpacity
                         onPress={() => navigation.goBack()}
                         style={styles.backButton}>
-
-                        <Text style={styles.backText}>
-                            ‹
-                        </Text>
-
+                        <Text style={styles.backText}>‹</Text>
                     </TouchableOpacity>
 
                     <Text style={styles.headerTitle}>
@@ -46,9 +44,7 @@ const CandidateProfileScreen = ({
                 </View>
 
                 {/* Candidate Header */}
-
                 <View style={styles.profileHeader}>
-
                     <View style={styles.avatar}>
                         <Text style={styles.avatarText}>
                             {candidate.name.charAt(0)}
@@ -66,32 +62,26 @@ const CandidateProfileScreen = ({
                     <Text style={styles.candidateDesignation}>
                         {candidate.designation}
                     </Text>
-
                 </View>
 
                 {/* Recruitment Status */}
-
                 <Text style={styles.sectionTitle}>
                     Recruitment Status
                 </Text>
 
                 <View style={styles.card}>
-
                     <DetailRow
                         label="Current Stage"
                         value={candidate.stage}
                     />
-
                 </View>
 
                 {/* Candidate Details */}
-
                 <Text style={styles.sectionTitle}>
                     Candidate Details
                 </Text>
 
                 <View style={styles.card}>
-
                     <DetailRow
                         label="Full Name"
                         value={candidate.name}
@@ -106,16 +96,62 @@ const CandidateProfileScreen = ({
                         label="Designation"
                         value={candidate.designation}
                     />
+                </View>
 
+                {/* Previous Work */}
+                <Text style={styles.sectionTitle}>
+                    Previous Work
+                </Text>
+
+                <View style={styles.card}>
+                    {previousWork &&
+                        (previousWork.companyName ||
+                            previousWork.period ||
+                            previousWork.role) ? (
+                        <>
+                            <DetailRow
+                                label="Last Worked Company Name"
+                                value={
+                                    previousWork.companyName || 'Not provided'
+                                }
+                            />
+
+                            <DetailRow
+                                label="Period"
+                                value={
+                                    previousWork.period || 'Not provided'
+                                }
+                            />
+
+                            <DetailRow
+                                label="Role"
+                                value={
+                                    previousWork.role || 'Not provided'
+                                }
+                            />
+                        </>
+                    ) : (
+                        <View style={styles.emptyWork}>
+                            <Text style={styles.emptyWorkTitle}>
+                                No Previous Work Experience
+                            </Text>
+
+                            <Text style={styles.emptyWorkSubtitle}>
+                                Previous employment details have not been
+                                added for this candidate.
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 {/* Documents */}
-
                 <Text style={styles.sectionTitle}>
                     Documents
                 </Text>
 
-                <TouchableOpacity style={styles.actionCard}>
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}>
 
                     <View>
                         <Text style={styles.actionTitle}>
@@ -127,10 +163,7 @@ const CandidateProfileScreen = ({
                         </Text>
                     </View>
 
-                    <Text style={styles.arrow}>
-                        →
-                    </Text>
-
+                    <Text style={styles.arrow}>→</Text>
                 </TouchableOpacity>
 
             </ScrollView>
@@ -144,21 +177,12 @@ const DetailRow = ({
 }: {
     label: string;
     value: string;
-}) => {
-    return (
-        <View style={styles.detailRow}>
-
-            <Text style={styles.detailLabel}>
-                {label}
-            </Text>
-
-            <Text style={styles.detailValue}>
-                {value}
-            </Text>
-
-        </View>
-    );
-};
+}) => (
+    <View style={styles.detailRow}>
+        <Text style={styles.detailLabel}>{label}</Text>
+        <Text style={styles.detailValue}>{value}</Text>
+    </View>
+);
 
 export default CandidateProfileScreen;
 
@@ -266,7 +290,7 @@ const styles = StyleSheet.create({
 
     detailLabel: {
         fontSize: 12,
-        color: '#2b61bd',
+        color: '#2B61BD',
     },
 
     detailValue: {
@@ -274,6 +298,23 @@ const styles = StyleSheet.create({
         color: '#111827',
         fontWeight: '500',
         marginTop: 3,
+    },
+
+    emptyWork: {
+        paddingVertical: 20,
+    },
+
+    emptyWorkTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
+    },
+
+    emptyWorkSubtitle: {
+        fontSize: 12,
+        lineHeight: 18,
+        color: '#9CA3AF',
+        marginTop: 5,
     },
 
     actionCard: {
