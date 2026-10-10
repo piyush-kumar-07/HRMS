@@ -75,6 +75,23 @@ const CandidateProfileScreen = ({
                         value={candidate.stage}
                     />
                 </View>
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    activeOpacity={0.75}
+                    onPress={() => {
+                        navigation.navigate('RecruitmentWorkflowScreen', {
+                            candidate: candidate,
+                        });
+                    }
+                    }>
+                    <View>
+                        <Text style={styles.actionTitle}>Manage Recruitment Phases</Text>
+                        <Text style={styles.actionSubtitle}>
+                            Assign conductors, record results, and view final decision
+                        </Text>
+                    </View>
+                    <Text style={styles.arrow}>→</Text>
+                </TouchableOpacity>
 
                 {/* Candidate Details */}
                 <Text style={styles.sectionTitle}>
@@ -344,4 +361,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: '#2563EB',
     },
+
+
+
 });
