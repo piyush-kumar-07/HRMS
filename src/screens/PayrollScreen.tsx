@@ -9,6 +9,7 @@ import {
     StyleSheet,
     StatusBar,
     Alert,
+    TextInput,
 } from 'react-native';
 
 type SalaryType = 'monthly' | 'daily' | 'hourly';
@@ -37,6 +38,7 @@ type Employee = {
     esic: number;
     leaveDeduction: number;
     otherDeduction: number;
+    otherDeductionReason?: string;
 };
 
 type Calculation = {
@@ -52,7 +54,6 @@ type PayrollPeriod = {
     start: string;
     end: string;
 };
-
 
 const departments = [
     { id: 'DEP001', name: 'Production' },
@@ -263,7 +264,10 @@ function Picker({
                         </TouchableOpacity>
                     ))}
 
-                    <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+                    <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={onClose}
+                    >
                         <Text style={styles.cancelText}>Cancel</Text>
                     </TouchableOpacity>
                 </Pressable>
@@ -280,12 +284,17 @@ export default function PayrollScreen() {
     const [reviewEmployee, setReviewEmployee] = useState<Employee | null>(null);
     const [approvedRuns, setApprovedRuns] = useState<string[]>([]);
     const [exportedRuns, setExportedRuns] = useState<string[]>([]);
+
     const [employeeShifts, setEmployeeShifts] = useState<EmployeeShift[]>(
         employees.map((employee, index) => ({
             employeeId: employee.id,
             shift: index % 2 === 0 ? '1st Shift' : '2nd Shift',
         })),
     );
+
+    const [deductionReasons, setDeductionReasons] = useState<
+        Record<string, string>
+    >({});
 
     const [shiftEmployee, setShiftEmployee] = useState<Employee | null>(null);
     const [selectedShift, setSelectedShift] =
@@ -312,6 +321,7 @@ export default function PayrollScreen() {
     };
 
     const period = periods.find(item => item.label === periodLabel) ?? periods[0];
+
     const department =
         departments.find(item => item.id === departmentId) ?? departments[0];
 
@@ -346,6 +356,7 @@ export default function PayrollScreen() {
     const isExported = exportedRuns.includes(runId);
 
     const companyEmployees = employees.length;
+
     const companyNet = employees.reduce(
         (sum, employee) => sum + calculateSalary(employee).net,
         0,
@@ -417,7 +428,12 @@ export default function PayrollScreen() {
                     </View>
 
                     <View style={[styles.badge, isApproved && styles.approvedBadge]}>
-                        <Text style={[styles.badgeText, isApproved && styles.approvedText]}>
+                        <Text
+                            style={[
+                                styles.badgeText,
+                                isApproved && styles.approvedText,
+                            ]}
+                        >
                             {isApproved ? 'Approved' : 'Draft'}
                         </Text>
                     </View>
@@ -440,7 +456,8 @@ export default function PayrollScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Process by Department</Text>
                     <Text style={styles.sectionDescription}>
-                        Select a salary period and department to calculate individual salaries.
+                        Select a salary period and department to calculate individual
+                        salaries.
                     </Text>
 
                     <Text style={styles.inputLabel}>Payroll period</Text>
@@ -471,7 +488,9 @@ export default function PayrollScreen() {
                     <View style={styles.statsRow}>
                         <View style={styles.stat}>
                             <Text style={styles.statLabel}>Employees</Text>
-                            <Text style={styles.statValue}>{departmentEmployees.length}</Text>
+                            <Text style={styles.statValue}>
+                                {departmentEmployees.length}
+                            </Text>
                         </View>
 
                         <View style={styles.stat}>
@@ -529,7 +548,9 @@ export default function PayrollScreen() {
                                         </Text>
                                     </View>
 
-                                    <Text style={styles.employeeNet}>{money(calculation.net)}</Text>
+                                    <Text style={styles.employeeNet}>
+                                        {money(calculation.net)}
+                                    </Text>
                                 </View>
 
                                 <View style={styles.employeeDetails}>
@@ -538,13 +559,10 @@ export default function PayrollScreen() {
                                             ? `${employee.payableHours} payable hours`
                                             : `${calculation.equivalentDays} equivalent payable days`}
                                     </Text>
-
                                     <Text style={styles.detailText}>
                                         Deductions: {money(calculation.deductions)}
                                     </Text>
                                 </View>
-
-
 
                                 {employee.salaryType !== 'hourly' && (
                                     <Text style={styles.detailText}>
@@ -637,8 +655,12 @@ export default function PayrollScreen() {
                                 const calculation = calculateSalary(employee);
 
                                 return (
-                                    <ScrollView>
+                                    <ScrollView
+                                        keyboardShouldPersistTaps="handled"
+                                        showsVerticalScrollIndicator={false}
+                                    >
                                         <View style={styles.handle} />
+
                                         <Text style={styles.sheetTitle}>Salary breakdown</Text>
                                         <Text style={styles.employeeName}>{employee.name}</Text>
                                         <Text style={styles.muted}>
@@ -682,14 +704,26 @@ export default function PayrollScreen() {
 
                                             <View style={styles.separator} />
                                             <Text style={styles.breakdownHeading}>Earnings</Text>
-                                            <Line label="Basic payable salary" value={calculation.basic} />
+
+                                            <Line
+                                                label="Basic payable salary"
+                                                value={calculation.basic}
+                                            />
                                             <Line label="Overtime" value={employee.overtime} />
                                             <Line label="Bonus" value={employee.bonus} />
-                                            <Line label="Other income" value={employee.otherIncome} />
-                                            <Line label="Gross earnings" value={calculation.gross} bold />
+                                            <Line
+                                                label="Other income"
+                                                value={employee.otherIncome}
+                                            />
+                                            <Line
+                                                label="Gross earnings"
+                                                value={calculation.gross}
+                                                bold
+                                            />
 
                                             <View style={styles.separator} />
                                             <Text style={styles.breakdownHeading}>Deductions</Text>
+
                                             <Line label="EPF / PF" value={employee.pf} negative />
                                             <Line label="ESIC" value={employee.esic} negative />
                                             <Line
@@ -702,6 +736,42 @@ export default function PayrollScreen() {
                                                 value={employee.otherDeduction}
                                                 negative
                                             />
+
+                                            {/* Reason for other deduction */}
+                                            <View style={styles.inputGroup}>
+                                                <Text style={styles.inputLabel}>
+                                                    Reason for Other Deduction
+                                                </Text>
+
+                                                <TextInput
+                                                    style={styles.reasonInput}
+                                                    placeholder="Enter reason for this deduction..."
+                                                    placeholderTextColor="#9CA3AF"
+                                                    value={
+                                                        deductionReasons[employee.id] ??
+                                                        employee.otherDeductionReason ??
+                                                        ''
+                                                    }
+                                                    onChangeText={text =>
+                                                        setDeductionReasons(previous => ({
+                                                            ...previous,
+                                                            [employee.id]: text,
+                                                        }))
+                                                    }
+                                                    multiline
+                                                    numberOfLines={3}
+                                                    textAlignVertical="top"
+                                                    editable={!isApproved}
+                                                />
+
+                                                {isApproved && (
+                                                    <Text style={styles.reasonNote}>
+                                                        Payroll is approved. The deduction reason is
+                                                        read-only.
+                                                    </Text>
+                                                )}
+                                            </View>
+
                                             <Line
                                                 label="Total deductions"
                                                 value={calculation.deductions}
@@ -715,13 +785,34 @@ export default function PayrollScreen() {
                                                     {money(calculation.net)}
                                                 </Text>
                                             </View>
+
+                                            <Text style={styles.reasonNote}>
+                                                Shift: {getEmployeeShift(employee.id)}
+                                            </Text>
+
+                                            {!isApproved && (
+                                                <TouchableOpacity
+                                                    style={styles.shiftButton}
+                                                    onPress={() => {
+                                                        setShiftEmployee(employee);
+                                                        setSelectedShift(getEmployeeShift(employee.id));
+                                                        setShiftPickerVisible(true);
+                                                    }}
+                                                >
+                                                    <Text style={styles.shiftButtonText}>
+                                                        Change Employee Shift
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            )}
                                         </View>
 
                                         <TouchableOpacity
                                             style={styles.primaryButton}
                                             onPress={() => setReviewEmployee(null)}
                                         >
-                                            <Text style={styles.primaryButtonText}>Close breakdown</Text>
+                                            <Text style={styles.primaryButtonText}>
+                                                Close breakdown
+                                            </Text>
                                         </TouchableOpacity>
                                     </ScrollView>
                                 );
@@ -729,6 +820,26 @@ export default function PayrollScreen() {
                     </Pressable>
                 </Pressable>
             </Modal>
+
+            <Picker
+                visible={shiftPickerVisible}
+                title="Select employee shift"
+                options={['1st Shift', '2nd Shift']}
+                selected={selectedShift}
+                onSelect={value => setSelectedShift(value as ShiftType)}
+                onClose={() => setShiftPickerVisible(false)}
+            />
+
+            {shiftEmployee && shiftPickerVisible && (
+                <View style={styles.shiftSaveContainer}>
+                    <TouchableOpacity
+                        style={styles.primaryButton}
+                        onPress={saveEmployeeShift}
+                    >
+                        <Text style={styles.primaryButtonText}>Save Shift</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </View>
     );
 }
@@ -765,6 +876,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F5F7FB' },
     content: { padding: 18, paddingBottom: 40 },
     flex: { flex: 1 },
+
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -772,6 +884,7 @@ const styles = StyleSheet.create({
     },
     title: { fontSize: 27, fontWeight: '700', color: '#172033' },
     subtitle: { color: '#788397', fontSize: 13, marginTop: 4 },
+
     badge: {
         backgroundColor: '#E4EEFF',
         paddingHorizontal: 13,
@@ -782,6 +895,7 @@ const styles = StyleSheet.create({
     badgeText: { color: '#2463C5', fontWeight: '700', fontSize: 12 },
     approvedBadge: { backgroundColor: '#DCFCE7' },
     approvedText: { color: '#15803D' },
+
     summaryRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
     summaryCard: {
         flex: 1,
@@ -798,6 +912,7 @@ const styles = StyleSheet.create({
     summaryValue: { color: '#172033', fontSize: 34, fontWeight: '700' },
     summaryMoney: { color: '#172033', fontSize: 22, fontWeight: '700' },
     muted: { color: '#8490A3', fontSize: 12, marginTop: 5, lineHeight: 18 },
+
     section: { marginBottom: 25 },
     sectionTitle: { fontSize: 20, fontWeight: '700', color: '#172033' },
     sectionDescription: {
@@ -807,6 +922,7 @@ const styles = StyleSheet.create({
         marginTop: 7,
         marginBottom: 20,
     },
+
     inputLabel: {
         fontSize: 13,
         fontWeight: '600',
@@ -827,6 +943,7 @@ const styles = StyleSheet.create({
     },
     selectorText: { color: '#243047', fontSize: 15 },
     chevron: { color: '#667085', fontSize: 23 },
+
     departmentCard: {
         backgroundColor: '#FFFFFF',
         padding: 17,
@@ -840,6 +957,7 @@ const styles = StyleSheet.create({
     stat: { flex: 1, minWidth: 0 },
     statLabel: { color: '#7B8799', fontSize: 11, marginBottom: 7 },
     statValue: { color: '#27364C', fontSize: 14, fontWeight: '700' },
+
     netBox: {
         backgroundColor: '#F0F7F2',
         padding: 15,
@@ -848,6 +966,7 @@ const styles = StyleSheet.create({
     },
     netLabel: { color: '#4B6654', fontSize: 13 },
     netAmount: { color: '#167343', fontSize: 25, fontWeight: '700', marginTop: 7 },
+
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -855,6 +974,7 @@ const styles = StyleSheet.create({
         marginBottom: 14,
     },
     count: { color: '#718096', fontSize: 12 },
+
     employeeCard: {
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
@@ -875,6 +995,7 @@ const styles = StyleSheet.create({
     avatarText: { color: '#315EB5', fontWeight: '700' },
     employeeName: { color: '#202B40', fontSize: 15, fontWeight: '700' },
     employeeNet: { color: '#187746', fontSize: 16, fontWeight: '700' },
+
     employeeDetails: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -892,6 +1013,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginTop: 12,
     },
+
     empty: {
         backgroundColor: '#FFFFFF',
         padding: 22,
@@ -899,6 +1021,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     emptyTitle: { color: '#27364C', fontWeight: '700', fontSize: 16 },
+
     primaryButton: {
         backgroundColor: '#2563EB',
         minHeight: 51,
@@ -906,9 +1029,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 12,
         marginTop: 8,
+        paddingHorizontal: 14,
     },
     primaryButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
     disabledButton: { backgroundColor: '#8CA6D9' },
+
     secondaryButton: {
         minHeight: 51,
         alignItems: 'center',
@@ -922,6 +1047,7 @@ const styles = StyleSheet.create({
     secondaryButtonText: { color: '#2563EB', fontWeight: '700', fontSize: 14 },
     disabledOutline: { borderColor: '#C9D0DC' },
     footnote: { color: '#8590A1', fontSize: 11, lineHeight: 17, marginTop: 12 },
+
     overlay: {
         flex: 1,
         justifyContent: 'flex-end',
@@ -950,6 +1076,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         marginBottom: 16,
     },
+
     option: {
         minHeight: 51,
         borderRadius: 10,
@@ -971,6 +1098,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     cancelText: { color: '#344054', fontWeight: '600' },
+
     breakdown: { marginTop: 23, marginBottom: 20 },
     breakdownHeading: {
         color: '#344054',
@@ -989,4 +1117,43 @@ const styles = StyleSheet.create({
     lineValue: { color: '#344054', fontSize: 13 },
     bold: { color: '#172033', fontWeight: '700' },
     separator: { height: 1, backgroundColor: '#E4E7EC', marginVertical: 17 },
+
+    inputGroup: {
+        marginTop: 16,
+        marginBottom: 12,
+    },
+    reasonInput: {
+        minHeight: 85,
+        borderWidth: 1,
+        borderColor: '#D1D5DB',
+        borderRadius: 10,
+        padding: 12,
+        fontSize: 14,
+        color: '#111827',
+        backgroundColor: '#FFFFFF',
+    },
+    reasonNote: {
+        color: '#8490A3',
+        fontSize: 11,
+        lineHeight: 16,
+        marginTop: 8,
+    },
+    shiftButton: {
+        borderWidth: 1,
+        borderColor: '#2563EB',
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+        marginTop: 15,
+    },
+    shiftButtonText: {
+        color: '#2563EB',
+        fontWeight: '600',
+        fontSize: 13,
+    },
+    shiftSaveContainer: {
+        paddingHorizontal: 18,
+        paddingBottom: 12,
+        backgroundColor: '#F5F7FB',
+    },
 });

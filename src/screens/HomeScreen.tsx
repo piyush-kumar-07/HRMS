@@ -22,6 +22,8 @@ import {
 
     Modal,
 
+    Alert,
+
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +40,29 @@ import {
 
 } from '../utils/attendanceActivity';
 
+
+
 type AttendanceStatus = 'present' | 'leave' | 'absent';
+
+
+
+type Announcement = {
+
+    id: string;
+
+    title: string;
+
+    message: string;
+
+    department: string;
+
+    recipients: number;
+
+    createdAt: string;
+
+};
+
+
 
 const HomeScreen = () => {
 
@@ -46,36 +70,63 @@ const HomeScreen = () => {
 
     const pendingRequests = 3;
 
+
+
     const [search, setSearch] = useState('');
 
-    const [attendanceActivities, setAttendanceActivities] = useState<AttendanceActivity[]>(getAttendanceActivities());
+    const [attendanceActivities, setAttendanceActivities] =
 
-    useEffect(() => {
-        const unsubscribe = subscribeToAttendanceActivities(items => {
-            setAttendanceActivities(items);
-        });
+        useState<AttendanceActivity[]>(getAttendanceActivities());
 
-        return () => {
-            unsubscribe();
-        };
 
-    }, []);
 
     const [quickStatus, setQuickStatus] =
 
         useState<AttendanceStatus | null>(null);
 
-    // --------------------------------
 
-    // Dashboard Search
 
-    // --------------------------------
+    const [notificationModalVisible, setNotificationModalVisible] =
+
+        useState(false);
+
+    const [composeVisible, setComposeVisible] = useState(false);
+
+    const [notificationTitle, setNotificationTitle] = useState('');
+
+    const [notificationMessage, setNotificationMessage] = useState('');
+
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+
+
+    useEffect(() => {
+
+        const unsubscribe = subscribeToAttendanceActivities(items => {
+
+            setAttendanceActivities(items);
+
+        });
+
+
+
+        return () => {
+
+            unsubscribe();
+
+        };
+
+    }, []);
+
+
 
     const searchEmployees = () => {
 
         const searchText = search.trim();
 
         Keyboard.dismiss();
+
+
 
         if (!searchText) {
 
@@ -85,25 +136,19 @@ const HomeScreen = () => {
 
         }
 
+
+
         navigation.navigate('Employees', {
 
             screen: 'EmployeeList',
 
-            params: {
-
-                search: searchText,
-
-            },
+            params: { search: searchText },
 
         });
 
     };
 
-    // --------------------------------
 
-    // View All Employees
-
-    // --------------------------------
 
     const openEmployees = () => {
 
@@ -113,45 +158,27 @@ const HomeScreen = () => {
 
     };
 
-    // --------------------------------
 
-    // Attendance Card - Normal Tap
 
-    // --------------------------------
-
-    const openStatusEmployees = (
-
-        status: AttendanceStatus,
-
-    ) => {
+    const openStatusEmployees = (status: AttendanceStatus) => {
 
         Keyboard.dismiss();
+
+
 
         navigation.getParent()?.navigate('Employees', {
 
             screen: 'EmployeeList',
 
-            params: {
-
-                filter: status,
-
-            },
+            params: { filter: status },
 
         });
 
     };
 
-    // --------------------------------
 
-    // Attendance Card - Long Press
 
-    // --------------------------------
-
-    const openQuickStatus = (
-
-        status: AttendanceStatus,
-
-    ) => {
+    const openQuickStatus = (status: AttendanceStatus) => {
 
         Keyboard.dismiss();
 
@@ -159,39 +186,73 @@ const HomeScreen = () => {
 
     };
 
-    // --------------------------------
+    const [selectedDepartment, setSelectedDepartment] =
 
-    // Close Floating Panel
+        useState('All Departments');
 
-    // --------------------------------
 
-    const closeQuickStatus = () => {
 
-        setQuickStatus(null);
+    const [departmentDropdownVisible, setDepartmentDropdownVisible] =
 
-    };
+        useState(false);
 
-    // --------------------------------
+    const departments = [
 
-    // Employees for Floating Panel
+        'All Departments',
 
-    // --------------------------------
+        ...Array.from(
+
+            new Set(
+
+                employees
+
+                    .map(employee => employee.department)
+
+                    .filter(
+
+                        (department): department is string =>
+
+                            typeof department === 'string' &&
+
+                            department.trim().length > 0,
+
+                    ),
+
+            ),
+
+        ),
+
+    ];
+
+
+
+    const recipientEmployees =
+
+        selectedDepartment === 'All Departments'
+
+            ? employees
+
+            : employees.filter(
+
+                employee =>
+
+                    employee.department === selectedDepartment,
+
+            );
+
+
+
+    const closeQuickStatus = () => setQuickStatus(null);
+
+
 
     const quickEmployees = quickStatus
 
-        ? employees.filter(
-
-            employee => employee.status === quickStatus,
-
-        )
+        ? employees.filter(employee => employee.status === quickStatus)
 
         : [];
 
-    // --------------------------------
 
-    // Floating Panel Title
-
-    // --------------------------------
 
     const quickStatusTitle =
 
@@ -205,11 +266,7 @@ const HomeScreen = () => {
 
                 : 'Absent Employees';
 
-    // --------------------------------
 
-    // Floating Panel Color
-
-    // --------------------------------
 
     const quickStatusColor =
 
@@ -223,6 +280,120 @@ const HomeScreen = () => {
 
                 : '#EF4444';
 
+    const sendAnnouncement = () => {
+
+        const trimmedTitle = notificationTitle.trim();
+
+        const trimmedMessage = notificationMessage.trim();
+
+
+
+        if (!trimmedTitle || !trimmedMessage) {
+
+            Alert.alert(
+
+                'Missing Information',
+
+                'Enter both an announcement title and message.',
+
+            );
+
+            return;
+
+        }
+
+
+
+        if (recipientEmployees.length === 0) {
+
+            Alert.alert(
+
+                'No Employees',
+
+                'No employees were found in this department.',
+
+            );
+
+            return;
+
+        }
+
+
+
+        Alert.alert(
+
+            'Confirm Announcement',
+
+            " `Send to ${selectedDepartment} (${recipientEmployees.length} employees)?",
+
+            [
+
+                { text: 'Cancel', style: 'cancel' },
+
+                {
+
+                    text: 'Send',
+
+                    onPress: () => {
+
+                        const announcement: Announcement = {
+
+                            id: Date.now().toString(),
+
+                            title: trimmedTitle,
+
+                            message: trimmedMessage,
+
+                            department: selectedDepartment,
+
+                            recipients: recipientEmployees.length,
+
+                            createdAt: new Date().toLocaleString(),
+
+                        };
+
+
+
+                        setAnnouncements(previous => [
+
+                            announcement,
+
+                            ...previous,
+
+                        ]);
+
+
+
+                        setNotificationTitle('');
+
+                        setNotificationMessage('');
+
+                        setSelectedDepartment('All Departments');
+
+                        setComposeVisible(false);
+
+
+
+                        Alert.alert(
+
+                            'Announcement Created',
+
+                            " Recorded for ${announcement.recipients} employees.",
+
+                        );
+
+                    },
+
+                },
+
+            ],
+
+        );
+
+    };
+
+
+
     return (
 
         <SafeAreaView style={styles.container}>
@@ -233,13 +404,11 @@ const HomeScreen = () => {
 
                 showsVerticalScrollIndicator={false}
 
-                keyboardShouldPersistTaps="handled">
+                keyboardShouldPersistTaps="handled"
 
-                {/* -------------------------------- */}
+            >
 
-                {/* Header */}
 
-                {/* -------------------------------- */}
 
                 <View style={styles.header}>
 
@@ -257,6 +426,8 @@ const HomeScreen = () => {
 
                         </View>
 
+
+
                         <Text style={styles.companyName}>
 
                             BARC Security Solution
@@ -265,43 +436,31 @@ const HomeScreen = () => {
 
                     </View>
 
+
+
                     <TouchableOpacity
 
                         style={styles.notificationButton}
 
                         activeOpacity={0.75}
 
-                        onPress={() =>
+                        onPress={() => setNotificationModalVisible(true)}
 
-                            navigation.navigate('ActiveRequests')
+                    >
 
-                        }>
+                        <Text style={styles.notificationIcon}>🔔</Text>
 
-                        <Text style={styles.notificationIcon}>
 
-                            🔔
-
-                        </Text>
 
                         {pendingRequests > 0 && (
 
                             <View style={styles.notificationBadge}>
 
-                                {pendingRequests < 4 ? (
+                                <Text style={styles.notificationBadgeText}>
 
-                                    <Text
+                                    {pendingRequests}
 
-                                        style={
-
-                                            styles.notificationBadgeText
-
-                                        }>
-
-                                        {pendingRequests}
-
-                                    </Text>
-
-                                ) : null}
+                                </Text>
 
                             </View>
 
@@ -311,31 +470,19 @@ const HomeScreen = () => {
 
                 </View>
 
-                {/* -------------------------------- */}
 
-                {/* Dashboard Title */}
 
-                {/* -------------------------------- */}
+                <Text style={styles.dashboardTitle}>Dashboard</Text>
 
-                <Text style={styles.dashboardTitle}>
 
-                    Dashboard
 
-                </Text>
 
-                {/* -------------------------------- */}
-
-                {/* Search */}
-
-                {/* -------------------------------- */}
 
                 <View style={styles.searchContainer}>
 
-                    <Text style={styles.searchIcon}>
+                    <Text style={styles.searchIcon}>🔍</Text>
 
-                        🔍
 
-                    </Text>
 
                     <TextInput
 
@@ -355,131 +502,89 @@ const HomeScreen = () => {
 
                     />
 
+
+
                     {search.length > 0 && (
 
                         <TouchableOpacity
 
                             onPress={() => setSearch('')}
 
-                            style={styles.clearButton}>
+                            style={styles.clearButton}
 
-                            <Text style={styles.clearText}>
+                        >
 
-                                ×
-
-                            </Text>
+                            <Text style={styles.clearText}>×</Text>
 
                         </TouchableOpacity>
 
                     )}
 
+
+
                     <TouchableOpacity
 
                         style={styles.searchButton}
 
-                        onPress={searchEmployees}>
+                        onPress={searchEmployees}
 
-                        <Text style={styles.searchButtonText}>
+                    >
 
-                            Search
-
-                        </Text>
+                        <Text style={styles.searchButtonText}>Search</Text>
 
                     </TouchableOpacity>
 
                 </View>
 
-                {/* -------------------------------- */}
 
-                {/* Today's Attendance */}
 
-                {/* -------------------------------- */}
+
 
                 <View style={styles.sectionHeader}>
 
-                    <Text style={styles.sectionTitle}>
-
-                        Today's Attendance
-
-                    </Text>
+                    <Text style={styles.sectionTitle}>Today's Attendance</Text>
 
                     <TouchableOpacity onPress={openEmployees}>
 
-                        <Text style={styles.viewAll}>
-
-                            View All
-
-                        </Text>
+                        <Text style={styles.viewAll}>View All</Text>
 
                     </TouchableOpacity>
 
                 </View>
 
-                {/* -------------------------------- */}
 
-                {/* Attendance Cards */}
-
-                {/* -------------------------------- */}
 
                 <View style={styles.attendanceRow}>
 
-                    {/* Present */}
-
                     <TouchableOpacity
 
                         style={styles.attendanceCard}
 
                         activeOpacity={0.8}
 
-                        onPress={() =>
+                        onPress={() => openStatusEmployees('present')}
 
-                            openStatusEmployees('present')
+                        onLongPress={() => openQuickStatus('present')}
 
-                        }
+                        delayLongPress={500}
 
-                        onLongPress={() =>
-
-                            openQuickStatus('present')
-
-                        }
-
-                        delayLongPress={500}>
+                    >
 
                         <View style={styles.cardHeader}>
 
-                            <Text style={styles.cardTitle}>
+                            <Text style={styles.cardTitle}>Present</Text>
 
-                                Present
-
-                            </Text>
-
-                            <View
-
-                                style={
-
-                                    styles.presentIndicator
-
-                                }
-
-                            />
+                            <View style={styles.presentIndicator} />
 
                         </View>
 
-                        <Text style={styles.cardNumber}>
+                        <Text style={styles.cardNumber}>42</Text>
 
-                            42
-
-                        </Text>
-
-                        <Text style={styles.cardTotal}>
-
-                            / 50 Employees
-
-                        </Text>
+                        <Text style={styles.cardTotal}>/ 50 Employees</Text>
 
                     </TouchableOpacity>
 
-                    {/* On Leave */}
+
 
                     <TouchableOpacity
 
@@ -487,57 +592,31 @@ const HomeScreen = () => {
 
                         activeOpacity={0.8}
 
-                        onPress={() =>
+                        onPress={() => openStatusEmployees('leave')}
 
-                            openStatusEmployees('leave')
+                        onLongPress={() => openQuickStatus('leave')}
 
-                        }
+                        delayLongPress={500}
 
-                        onLongPress={() =>
-
-                            openQuickStatus('leave')
-
-                        }
-
-                        delayLongPress={500}>
+                    >
 
                         <View style={styles.cardHeader}>
 
-                            <Text style={styles.cardTitle}>
+                            <Text style={styles.cardTitle}>On Leave</Text>
 
-                                On Leave
-
-                            </Text>
-
-                            <View
-
-                                style={
-
-                                    styles.leaveIndicator
-
-                                }
-
-                            />
+                            <View style={styles.leaveIndicator} />
 
                         </View>
 
-                        <Text style={styles.cardNumber}>
+                        <Text style={styles.cardNumber}>5</Text>
 
-                            5
-
-                        </Text>
-
-                        <Text style={styles.cardTotal}>
-
-                            Employees
-
-                        </Text>
+                        <Text style={styles.cardTotal}>Employees</Text>
 
                     </TouchableOpacity>
 
                 </View>
 
-                {/* Absent */}
+
 
                 <TouchableOpacity
 
@@ -545,75 +624,41 @@ const HomeScreen = () => {
 
                     activeOpacity={0.8}
 
-                    onPress={() =>
+                    onPress={() => openStatusEmployees('absent')}
 
-                        openStatusEmployees('absent')
+                    onLongPress={() => openQuickStatus('absent')}
 
-                    }
+                    delayLongPress={500}
 
-                    onLongPress={() =>
-
-                        openQuickStatus('absent')
-
-                    }
-
-                    delayLongPress={500}>
+                >
 
                     <View style={styles.cardHeader}>
 
-                        <Text style={styles.cardTitle}>
+                        <Text style={styles.cardTitle}>Absent</Text>
 
-                            Absent
-
-                        </Text>
-
-                        <View
-
-                            style={
-
-                                styles.absentIndicator
-
-                            }
-
-                        />
+                        <View style={styles.absentIndicator} />
 
                     </View>
 
-                    <Text style={styles.cardNumber}>
+                    <Text style={styles.cardNumber}>6</Text>
 
-                        6
-
-                    </Text>
-
-                    <Text style={styles.cardTotal}>
-
-                        Employees
-
-                    </Text>
+                    <Text style={styles.cardTotal}>Employees</Text>
 
                 </TouchableOpacity>
 
-                {/* -------------------------------- */}
 
-                {/* Active Requests */}
 
-                {/* -------------------------------- */}
+
 
                 <View style={styles.sectionHeader}>
 
-                    <Text style={styles.sectionTitle}>
+                    <Text style={styles.sectionTitle}>Active Requests</Text>
 
-                        Active Requests
-
-                    </Text>
-
-                    <Text style={styles.requestCount}>
-
-                        1
-
-                    </Text>
+                    <Text style={styles.requestCount}>1</Text>
 
                 </View>
+
+
 
                 <TouchableOpacity
 
@@ -621,39 +666,23 @@ const HomeScreen = () => {
 
                     activeOpacity={0.75}
 
-                    onPress={() =>
+                    onPress={() => navigation.navigate('ActiveRequests')}
 
-                        navigation.navigate(
-
-                            'ActiveRequests',
-
-                        )
-
-                    }>
+                >
 
                     <View style={styles.requestIconContainer}>
 
-                        <Text style={styles.requestIcon}>
-
-                            🟡
-
-                        </Text>
+                        <Text style={styles.requestIcon}>🟡</Text>
 
                     </View>
 
+
+
                     <View style={styles.requestContent}>
 
-                        <Text style={styles.requestTitle}>
+                        <Text style={styles.requestTitle}>Leave Request</Text>
 
-                            Leave Request
-
-                        </Text>
-
-                        <Text style={styles.requestEmployee}>
-
-                            Rahul Kumar
-
-                        </Text>
+                        <Text style={styles.requestEmployee}>Rahul Kumar</Text>
 
                         <Text style={styles.requestDetails}>
 
@@ -663,25 +692,19 @@ const HomeScreen = () => {
 
                     </View>
 
-                    <Text style={styles.reviewText}>
 
-                        Review →
 
-                    </Text>
+                    <Text style={styles.reviewText}>Review →</Text>
 
                 </TouchableOpacity>
 
-                {/* -------------------------------- */}
 
-                {/* Recent Activity */}
 
-                {/* -------------------------------- */}
 
-                <Text style={styles.sectionTitle}>
 
-                    Recent Activity
+                <Text style={styles.sectionTitle}>Recent Activity</Text>
 
-                </Text>
+
 
                 <View style={styles.activityCard}>
 
@@ -693,7 +716,9 @@ const HomeScreen = () => {
 
                                 <Text style={styles.activityItem}>
 
-                                    • {activity.employeeName} ({activity.employeeId}) {activity.action}
+                                    • {activity.employeeName} ({activity.employeeId}){' '}
+
+                                    {activity.action}
 
                                 </Text>
 
@@ -713,9 +738,17 @@ const HomeScreen = () => {
 
                             <Text style={styles.activityItem}>• New employee added</Text>
 
-                            <Text style={styles.activityItem}>• Leave request submitted</Text>
+                            <Text style={styles.activityItem}>
 
-                            <Text style={styles.activityItem}>• Employee profile updated</Text>
+                                • Leave request submitted
+
+                            </Text>
+
+                            <Text style={styles.activityItem}>
+
+                                • Employee profile updated
+
+                            </Text>
 
                         </>
 
@@ -725,11 +758,519 @@ const HomeScreen = () => {
 
             </ScrollView>
 
-            {/* ================================== */}
 
-            {/* QUICK EMPLOYEE FLOATING PANEL */}
 
-            {/* ================================== */}
+
+
+            <Modal
+
+                visible={notificationModalVisible}
+
+                transparent
+
+                animationType="slide"
+
+                onRequestClose={() => {
+
+                    setNotificationModalVisible(false);
+
+                    setComposeVisible(false);
+
+                }}
+
+            >
+
+                <View style={styles.modalOverlay}>
+
+                    <View style={styles.notificationPanel}>
+
+                        <View style={styles.panelHeader}>
+
+                            <View style={styles.flex}>
+
+                                <Text style={styles.panelTitle}>Notifications</Text>
+
+                                <Text style={styles.panelSubtitle}>
+
+                                    Admin announcements
+
+                                </Text>
+
+                            </View>
+
+
+
+                            <TouchableOpacity
+
+                                style={styles.closeButton}
+
+                                onPress={() => {
+
+                                    setNotificationModalVisible(false);
+
+                                    setComposeVisible(false);
+
+                                }}
+
+                            >
+
+                                <Text style={styles.closeButtonText}>×</Text>
+
+                            </TouchableOpacity>
+
+                        </View>
+
+                        <TouchableOpacity
+
+                            style={styles.leaveRequestSection}
+
+                            activeOpacity={0.8}
+
+                            onPress={() => {
+
+                                setNotificationModalVisible(false);
+
+                                setComposeVisible(false);
+
+                                navigation.navigate('ActiveRequests');
+
+                            }}
+
+                        >
+
+                            <View style={styles.leaveRequestIcon}>
+
+                                <Text style={styles.leaveIconText}>📩</Text>
+
+                            </View>
+
+
+
+                            <View style={styles.leaveRequestInfo}>
+
+                                <Text style={styles.leaveRequestTitle}>
+
+                                    Leave Requests
+
+                                </Text>
+
+
+
+                                <Text style={styles.leaveRequestSubtitle}>
+
+                                    Review pending employee leave applications
+
+                                </Text>
+
+                            </View>
+
+
+
+                            <View style={styles.leaveRequestBadge}>
+
+                                <Text style={styles.leaveRequestBadgeText}>
+
+                                    {pendingRequests}
+
+                                </Text>
+
+                            </View>
+
+
+
+                            <Text style={styles.leaveRequestArrow}>›</Text>
+
+                        </TouchableOpacity>
+
+
+
+                        <TouchableOpacity
+
+                            style={styles.sendAllButton}
+
+                            activeOpacity={0.8}
+
+                            onPress={() => setComposeVisible(true)}
+
+                        >
+
+                            <Text style={styles.sendAllIcon}>✉</Text>
+
+                            <View style={styles.flex}>
+
+                                <Text style={styles.sendAllTitle}>
+
+                                    Send to All Employees
+
+                                </Text>
+
+                                <Text style={styles.sendAllSubtitle}>
+
+                                    Create a company-wide announcement
+
+                                </Text>
+
+                            </View>
+
+                            <Text style={styles.sendAllArrow}>›</Text>
+
+                        </TouchableOpacity>
+
+
+
+                        {composeVisible ? (
+
+                            <ScrollView
+
+                                keyboardShouldPersistTaps="handled"
+
+                                showsVerticalScrollIndicator={false}
+
+                            >
+
+                                <Text style={styles.fieldLabel}>
+
+                                    Send Announcement To
+
+                                </Text>
+
+
+
+                                <TouchableOpacity
+
+                                    style={styles.departmentDropdown}
+
+                                    activeOpacity={0.8}
+
+                                    onPress={() => setDepartmentDropdownVisible(true)}
+
+                                >
+
+                                    <Text style={styles.departmentDropdownText}>
+
+                                        {selectedDepartment}
+
+                                    </Text>
+
+
+
+                                    <Text style={styles.dropdownArrow}>▼</Text>
+
+                                </TouchableOpacity>
+
+
+
+                                <Text style={styles.recipientCount}>
+
+                                    {recipientEmployees.length} employee(s) will receive this announcement
+
+                                </Text>
+
+
+
+                                <Modal
+
+                                    visible={departmentDropdownVisible}
+
+                                    transparent
+
+                                    animationType="fade"
+
+                                    onRequestClose={() => setDepartmentDropdownVisible(false)}
+
+                                >
+
+                                    <TouchableOpacity
+
+                                        style={styles.dropdownOverlay}
+
+                                        activeOpacity={1}
+
+                                        onPress={() => setDepartmentDropdownVisible(false)}
+
+                                    >
+
+                                        <View style={styles.departmentDropdownList}>
+
+                                            <Text style={styles.dropdownModalTitle}>
+
+                                                Select Department
+
+                                            </Text>
+
+
+
+                                            <ScrollView>
+
+                                                {departments.map(department => (
+
+                                                    <TouchableOpacity
+
+                                                        key={department}
+
+                                                        style={styles.departmentOption}
+
+                                                        onPress={() => {
+
+                                                            setSelectedDepartment(department);
+
+                                                            setDepartmentDropdownVisible(false);
+
+                                                        }}
+
+                                                    >
+
+                                                        <Text
+
+                                                            style={[
+
+                                                                styles.departmentOptionText,
+
+                                                                selectedDepartment === department &&
+
+                                                                styles.selectedDepartmentText,
+
+                                                            ]}
+
+                                                        >
+
+                                                            {department}
+
+                                                        </Text>
+
+
+
+                                                        {selectedDepartment === department && (
+
+                                                            <Text style={styles.selectedCheck}>✓</Text>
+
+                                                        )}
+
+                                                    </TouchableOpacity>
+
+                                                ))}
+
+                                            </ScrollView>
+
+                                        </View>
+
+                                    </TouchableOpacity>
+
+                                </Modal>
+
+                                <Text style={styles.formHeading}>
+
+                                    New announcement
+
+                                </Text>
+
+
+
+                                <Text style={styles.fieldLabel}>Title</Text>
+
+                                <TextInput
+
+                                    style={styles.formInput}
+
+                                    placeholder="e.g. Holiday announcement"
+
+                                    placeholderTextColor="#9CA3AF"
+
+                                    value={notificationTitle}
+
+                                    onChangeText={setNotificationTitle}
+
+                                    maxLength={100}
+
+                                />
+
+
+
+                                <Text style={styles.fieldLabel}>Message</Text>
+
+                                <TextInput
+
+                                    style={[styles.formInput, styles.messageInput]}
+
+                                    placeholder="Write your message for all employees..."
+
+                                    placeholderTextColor="#9CA3AF"
+
+                                    value={notificationMessage}
+
+                                    onChangeText={setNotificationMessage}
+
+                                    multiline
+
+                                    numberOfLines={5}
+
+                                    textAlignVertical="top"
+
+                                    maxLength={2000}
+
+                                />
+
+
+
+                                <View style={styles.recipientInfo}>
+
+                                    <Text style={styles.recipientIcon}>👥</Text>
+
+
+
+                                    <View style={styles.flex}>
+
+                                        <Text style={styles.recipientTitle}>
+
+                                            {selectedDepartment}
+
+                                        </Text>
+
+
+
+                                        <Text style={styles.recipientSubtitle}>
+
+                                            {recipientEmployees.length} recipients
+
+                                        </Text>
+
+                                    </View>
+
+                                </View>
+
+
+
+                                <TouchableOpacity
+
+                                    style={styles.sendButton}
+
+                                    onPress={sendAnnouncement}
+
+                                >
+
+                                    <Text style={styles.sendButtonText}>
+
+                                        Send announcement
+
+                                    </Text>
+
+                                </TouchableOpacity>
+
+
+
+                                <TouchableOpacity
+
+                                    style={styles.cancelComposeButton}
+
+                                    onPress={() => setComposeVisible(false)}
+
+                                >
+
+                                    <Text style={styles.cancelComposeText}>Cancel</Text>
+
+                                </TouchableOpacity>
+
+                            </ScrollView>
+
+                        ) : (
+
+                            <ScrollView
+
+                                style={styles.announcementList}
+
+                                showsVerticalScrollIndicator={false}
+
+                            >
+
+                                <Text style={styles.listHeading}>
+
+                                    Recent announcements
+
+                                </Text>
+
+
+
+                                {announcements.length === 0 ? (
+
+                                    <View style={styles.emptyAnnouncements}>
+
+                                        <Text style={styles.emptyIcon}>📭</Text>
+
+                                        <Text style={styles.emptyTitle}>
+
+                                            No announcements yet
+
+                                        </Text>
+
+                                        <Text style={styles.emptyText}>
+
+                                            Messages you create will appear here during this
+
+                                            session.
+
+                                        </Text>
+
+                                    </View>
+
+                                ) : (
+
+                                    announcements.map(item => (
+
+                                        <View key={item.id} style={styles.announcementCard}>
+
+                                            <Text style={styles.announcementTitle}>
+
+                                                {item.title}
+
+                                            </Text>
+
+                                            <Text style={styles.announcementMessage}>
+
+                                                {item.message}
+
+                                            </Text>
+
+                                            <Text style={styles.announcementMeta}>
+
+                                                Department: {item.department}
+
+                                            </Text>
+
+
+
+                                            <Text style={styles.announcementMeta}>
+
+                                                Recipients: {item.recipients} employees
+
+                                            </Text>
+
+
+
+                                            <Text style={styles.announcementDate}>
+
+                                                {item.createdAt}
+
+                                            </Text>
+
+                                        </View>
+
+                                    ))
+
+                                )}
+
+                            </ScrollView>
+
+                        )}
+
+                    </View>
+
+                </View>
+
+            </Modal>
+
+
+
+            /* Quick attendance employee panel */
 
             <Modal
 
@@ -739,29 +1280,17 @@ const HomeScreen = () => {
 
                 animationType="fade"
 
-                onRequestClose={closeQuickStatus}>
+                onRequestClose={closeQuickStatus}
+
+            >
 
                 <View style={styles.modalOverlay}>
 
                     <View style={styles.quickPanel}>
 
-                        {/* Panel Header */}
+                        <View style={styles.quickPanelHeader}>
 
-                        <View
-
-                            style={
-
-                                styles.quickPanelHeader
-
-                            }>
-
-                            <View
-
-                                style={
-
-                                    styles.quickTitleContainer
-
-                                }>
+                            <View style={styles.quickTitleContainer}>
 
                                 <View
 
@@ -769,13 +1298,7 @@ const HomeScreen = () => {
 
                                         styles.quickStatusDot,
 
-                                        {
-
-                                            backgroundColor:
-
-                                                quickStatusColor,
-
-                                        },
+                                        { backgroundColor: quickStatusColor },
 
                                     ]}
 
@@ -783,29 +1306,15 @@ const HomeScreen = () => {
 
                                 <View>
 
-                                    <Text
-
-                                        style={
-
-                                            styles.quickPanelTitle
-
-                                        }>
+                                    <Text style={styles.quickPanelTitle}>
 
                                         {quickStatusTitle}
 
                                     </Text>
 
-                                    <Text
+                                    <Text style={styles.quickPanelCount}>
 
-                                        style={
-
-                                            styles.quickPanelCount
-
-                                        }>
-
-                                        {quickEmployees.length}{' '}
-
-                                        employees
+                                        {quickEmployees.length} employees
 
                                     </Text>
 
@@ -813,225 +1322,125 @@ const HomeScreen = () => {
 
                             </View>
 
+
+
                             <TouchableOpacity
 
                                 style={styles.closeButton}
 
-                                onPress={
+                                onPress={closeQuickStatus}
 
-                                    closeQuickStatus
+                            >
 
-                                }>
-
-                                <Text
-
-                                    style={
-
-                                        styles.closeButtonText
-
-                                    }>
-
-                                    ×
-
-                                </Text>
+                                <Text style={styles.closeButtonText}>×</Text>
 
                             </TouchableOpacity>
 
                         </View>
 
-                        {/* Employee List */}
+
 
                         <ScrollView
 
-                            showsVerticalScrollIndicator={
+                            showsVerticalScrollIndicator={false}
 
-                                false
+                            contentContainerStyle={styles.quickEmployeeList}
 
-                            }
+                        >
 
-                            contentContainerStyle={
+                            {quickEmployees.map(employee => (
 
-                                styles.quickEmployeeList
+                                <TouchableOpacity
 
-                            }>
+                                    key={employee.id}
 
-                            {quickEmployees.map(
+                                    style={styles.quickEmployeeCard}
 
-                                employee => (
+                                    activeOpacity={0.75}
 
-                                    <TouchableOpacity
+                                    onPress={() => {
 
-                                        key={employee.id}
+                                        closeQuickStatus();
 
-                                        style={
+                                        navigation.navigate('Employees', {
 
-                                            styles.quickEmployeeCard
+                                            screen: 'EmployeeList',
 
-                                        }
+                                            params: { search: employee.id },
 
-                                        activeOpacity={0.75}
+                                        });
 
-                                        onPress={() => {
+                                    }}
 
-                                            closeQuickStatus();
+                                >
 
-                                            navigation.navigate(
+                                    <View style={styles.quickEmployeeInfo}>
 
-                                                'Employees',
+                                        <Text style={styles.quickEmployeeName}>
 
-                                                {
+                                            {employee.name}
 
-                                                    screen:
+                                        </Text>
 
-                                                        'EmployeeList',
+                                        <Text style={styles.quickEmployeeId}>
 
-                                                    params: {
+                                            {employee.id}
 
-                                                        search:
+                                        </Text>
 
-                                                            employee.id,
+                                        <Text style={styles.quickEmployeeDesignation}>
 
-                                                    },
+                                            {employee.designation}
 
-                                                },
+                                        </Text>
 
-                                            );
+                                    </View>
 
-                                        }}>
 
-                                        <View
 
-                                            style={
-
-                                                styles.quickEmployeeInfo
-
-                                            }>
-
-                                            <Text
-
-                                                style={
-
-                                                    styles.quickEmployeeName
-
-                                                }>
-
-                                                {
-
-                                                    employee.name
-
-                                                }
-
-                                            </Text>
-
-                                            <Text
-
-                                                style={
-
-                                                    styles.quickEmployeeId
-
-                                                }>
-
-                                                {
-
-                                                    employee.id
-
-                                                }
-
-                                            </Text>
-
-                                            <Text
-
-                                                style={
-
-                                                    styles.quickEmployeeDesignation
-
-                                                }>
-
-                                                {
-
-                                                    employee.designation
-
-                                                }
-
-                                            </Text>
-
-                                        </View>
+                                    <View style={styles.quickEmployeeStatus}>
 
                                         <View
 
-                                            style={
+                                            style={[
 
-                                                styles.quickEmployeeStatus
+                                                styles.quickStatusIndicator,
 
-                                            }>
+                                                { backgroundColor: quickStatusColor },
 
-                                            <View
+                                            ]}
 
-                                                style={[
+                                        />
 
-                                                    styles.quickStatusIndicator,
+                                    </View>
 
-                                                    {
+                                </TouchableOpacity>
 
-                                                        backgroundColor:
-
-                                                            quickStatusColor,
-
-                                                    },
-
-                                                ]}
-
-                                            />
-
-                                        </View>
-
-                                    </TouchableOpacity>
-
-                                ),
-
-                            )}
+                            ))}
 
                         </ScrollView>
 
-                        {/* Panel Footer */}
+
 
                         <TouchableOpacity
 
-                            style={
-
-                                styles.quickPanelFooter
-
-                            }
+                            style={styles.quickPanelFooter}
 
                             activeOpacity={0.75}
 
                             onPress={() => {
 
-                                const status =
-
-                                    quickStatus;
+                                const status = quickStatus;
 
                                 closeQuickStatus();
 
-                                if (status) {
+                                if (status) openStatusEmployees(status);
 
-                                    openStatusEmployees(
+                            }}
 
-                                        status,
+                        >
 
-                                    );
-
-                                }
-
-                            }}>
-
-                            <Text
-
-                                style={
-
-                                    styles.quickPanelFooterText
-
-                                }>
+                            <Text style={styles.quickPanelFooterText}>
 
                                 View All Employees →
 
@@ -1051,31 +1460,21 @@ const HomeScreen = () => {
 
 };
 
+
+
 export default HomeScreen;
+
+
 
 const styles = StyleSheet.create({
 
-    container: {
+    container: { flex: 1, backgroundColor: '#FFFFFF' },
 
-        flex: 1,
+    content: { paddingHorizontal: 15, paddingBottom: 130 },
 
-        backgroundColor: '#FFFFFF',
+    flex: { flex: 1 },
 
-    },
 
-    content: {
-
-        paddingHorizontal: 15,
-
-        paddingBottom: 130,
-
-    },
-
-    // --------------------------------
-
-    // Header
-
-    // --------------------------------
 
     header: {
 
@@ -1097,13 +1496,7 @@ const styles = StyleSheet.create({
 
         shadowColor: '#000',
 
-        shadowOffset: {
-
-            width: 0,
-
-            height: 2,
-
-        },
+        shadowOffset: { width: 0, height: 2 },
 
         shadowOpacity: 0.08,
 
@@ -1117,13 +1510,7 @@ const styles = StyleSheet.create({
 
     },
 
-    companySection: {
-
-        flexDirection: 'row',
-
-        alignItems: 'center',
-
-    },
+    companySection: { flexDirection: 'row', alignItems: 'center' },
 
     logoContainer: {
 
@@ -1141,15 +1528,7 @@ const styles = StyleSheet.create({
 
     },
 
-    logo: {
-
-        width: 40,
-
-        height: 40,
-
-        resizeMode: 'contain',
-
-    },
+    logo: { width: 40, height: 40, resizeMode: 'contain' },
 
     companyName: {
 
@@ -1177,11 +1556,7 @@ const styles = StyleSheet.create({
 
     },
 
-    notificationIcon: {
-
-        fontSize: 21,
-
-    },
+    notificationIcon: { fontSize: 21 },
 
     notificationBadge: {
 
@@ -1221,11 +1596,7 @@ const styles = StyleSheet.create({
 
     },
 
-    // --------------------------------
 
-    // Dashboard
-
-    // --------------------------------
 
     dashboardTitle: {
 
@@ -1240,12 +1611,6 @@ const styles = StyleSheet.create({
         marginBottom: 18,
 
     },
-
-    // --------------------------------
-
-    // Search
-
-    // --------------------------------
 
     searchContainer: {
 
@@ -1267,23 +1632,9 @@ const styles = StyleSheet.create({
 
     },
 
-    searchIcon: {
+    searchIcon: { fontSize: 18, marginRight: 8 },
 
-        fontSize: 18,
-
-        marginRight: 8,
-
-    },
-
-    searchInput: {
-
-        flex: 1,
-
-        fontSize: 15,
-
-        color: '#111827',
-
-    },
+    searchInput: { flex: 1, fontSize: 15, color: '#111827' },
 
     clearButton: {
 
@@ -1297,15 +1648,7 @@ const styles = StyleSheet.create({
 
     },
 
-    clearText: {
-
-        fontSize: 22,
-
-        color: '#6B7280',
-
-        lineHeight: 22,
-
-    },
+    clearText: { fontSize: 22, color: '#6B7280', lineHeight: 22 },
 
     searchButton: {
 
@@ -1329,11 +1672,7 @@ const styles = StyleSheet.create({
 
     },
 
-    // --------------------------------
 
-    // Section
-
-    // --------------------------------
 
     sectionHeader: {
 
@@ -1359,27 +1698,9 @@ const styles = StyleSheet.create({
 
     },
 
-    viewAll: {
+    viewAll: { fontSize: 14, color: '#2563EB', fontWeight: '600' },
 
-        fontSize: 14,
-
-        color: '#2563EB',
-
-        fontWeight: '600',
-
-    },
-
-    // --------------------------------
-
-    // Attendance
-
-    // --------------------------------
-
-    attendanceRow: {
-
-        flexDirection: 'row',
-
-    },
+    attendanceRow: { flexDirection: 'row' },
 
     attendanceCard: {
 
@@ -1409,15 +1730,7 @@ const styles = StyleSheet.create({
 
     },
 
-    cardTitle: {
-
-        fontSize: 14,
-
-        color: '#2563EB',
-
-        fontWeight: '600',
-
-    },
+    cardTitle: { fontSize: 14, color: '#2563EB', fontWeight: '600' },
 
     cardNumber: {
 
@@ -1431,13 +1744,41 @@ const styles = StyleSheet.create({
 
     },
 
-    cardTotal: {
+    cardTotal: { fontSize: 12, color: '#2563EB', marginTop: 2 },
 
-        fontSize: 12,
+    presentIndicator: {
 
-        color: '#2563EB',
+        width: 10,
 
-        marginTop: 2,
+        height: 10,
+
+        borderRadius: 5,
+
+        backgroundColor: '#22C55E',
+
+    },
+
+    leaveIndicator: {
+
+        width: 10,
+
+        height: 10,
+
+        borderRadius: 5,
+
+        backgroundColor: '#EAB308',
+
+    },
+
+    absentIndicator: {
+
+        width: 10,
+
+        height: 10,
+
+        borderRadius: 5,
+
+        backgroundColor: '#EF4444',
 
     },
 
@@ -1459,69 +1800,307 @@ const styles = StyleSheet.create({
 
     },
 
-    presentIndicator: {
 
-        width: 15,
 
-        height: 15,
-
-        borderRadius: 7.5,
-
-        backgroundColor: '#22C55E',
-
-    },
-
-    leaveIndicator: {
-
-        width: 15,
-
-        height: 15,
-
-        borderRadius: 7.5,
-
-        backgroundColor: '#EAB308',
-
-    },
-
-    absentIndicator: {
-
-        width: 15,
-
-        height: 15,
-
-        borderRadius: 7.5,
-
-        backgroundColor: '#EF4444',
-
-    },
-
-    // --------------------------------
-
-    // Active Requests
-
-    // --------------------------------
-
-    requestCount: {
-
-        fontSize: 14,
-
-        fontWeight: '700',
-
-        color: '#D97706',
-
-        backgroundColor: '#FEF3C7',
-
-        paddingHorizontal: 9,
-
-        paddingVertical: 4,
-
-        borderRadius: 12,
-
-    },
+    requestCount: { color: '#2563EB', fontSize: 14, fontWeight: '700' },
 
     requestCard: {
 
-        minHeight: 90,
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        backgroundColor: '#FFFFFF',
+
+        borderWidth: 1,
+
+        borderColor: '#E5E7EB',
+
+        borderRadius: 12,
+
+        padding: 14,
+
+        marginBottom: 25,
+
+    },
+
+    requestIconContainer: { marginRight: 12 },
+
+    requestIcon: { fontSize: 22 },
+
+    requestContent: { flex: 1 },
+
+    requestTitle: { fontSize: 14, fontWeight: '700', color: '#111827' },
+
+    requestEmployee: { fontSize: 13, color: '#4B5563', marginTop: 4 },
+
+    requestDetails: { fontSize: 12, color: '#6B7280', marginTop: 3 },
+
+    reviewText: { color: '#2563EB', fontSize: 12, fontWeight: '600' },
+
+
+
+    activityCard: {
+
+        backgroundColor: '#FFFFFF',
+
+        borderWidth: 1,
+
+        borderColor: '#E5E7EB',
+
+        borderRadius: 12,
+
+        padding: 14,
+
+        marginBottom: 20,
+
+    },
+
+    activityEntry: {
+
+        paddingVertical: 7,
+
+        borderBottomWidth: 1,
+
+        borderBottomColor: '#F3F4F6',
+
+    },
+
+    activityItem: { color: '#374151', fontSize: 13, lineHeight: 20 },
+
+    activityMeta: { color: '#9CA3AF', fontSize: 11, marginTop: 4 },
+
+
+
+    modalOverlay: {
+
+        flex: 1,
+
+        justifyContent: 'flex-end',
+
+        backgroundColor: 'rgba(20,30,45,0.4)',
+
+    },
+
+    notificationPanel: {
+
+        maxHeight: '90%',
+
+        minHeight: '55%',
+
+        backgroundColor: '#FFFFFF',
+
+        borderTopLeftRadius: 24,
+
+        borderTopRightRadius: 24,
+
+        paddingHorizontal: 20,
+
+        paddingTop: 18,
+
+        paddingBottom: 28,
+
+    },
+
+    panelHeader: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        marginBottom: 20,
+
+    },
+
+    fieldLabel: {
+
+        fontSize: 14,
+
+        fontWeight: '600',
+
+        color: '#374151',
+
+        marginBottom: 8,
+
+    },
+
+
+
+    departmentDropdown: {
+
+        minHeight: 48,
+
+        borderWidth: 1,
+
+        borderColor: '#D1D5DB',
+
+        borderRadius: 10,
+
+        paddingHorizontal: 14,
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'space-between',
+
+        marginBottom: 8,
+
+    },
+
+
+
+    departmentDropdownText: {
+
+        fontSize: 14,
+
+        color: '#111827',
+
+    },
+
+
+
+    dropdownArrow: {
+
+        fontSize: 12,
+
+        color: '#6B7280',
+
+    },
+
+
+
+    recipientCount: {
+
+        fontSize: 12,
+
+        color: '#6B7280',
+
+        marginBottom: 16,
+
+    },
+
+
+
+    dropdownOverlay: {
+
+        flex: 1,
+
+        backgroundColor: 'rgba(0,0,0,0.4)',
+
+        justifyContent: 'center',
+
+        paddingHorizontal: 28,
+
+    },
+
+
+
+    departmentDropdownList: {
+
+        backgroundColor: '#FFFFFF',
+
+        borderRadius: 14,
+
+        padding: 16,
+
+        maxHeight: '70%',
+
+    },
+
+
+
+    dropdownModalTitle: {
+
+        fontSize: 17,
+
+        fontWeight: '700',
+
+        color: '#111827',
+
+        marginBottom: 12,
+
+    },
+
+
+
+    departmentOption: {
+
+        minHeight: 46,
+
+        borderBottomWidth: 1,
+
+        borderBottomColor: '#F3F4F6',
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        justifyContent: 'space-between',
+
+        paddingVertical: 10,
+
+    },
+
+
+
+    departmentOptionText: {
+
+        fontSize: 14,
+
+        color: '#374151',
+
+    },
+
+
+
+    selectedDepartmentText: {
+
+        color: '#2563EB',
+
+        fontWeight: '700',
+
+    },
+
+
+
+    selectedCheck: {
+
+        fontSize: 17,
+
+        color: '#2563EB',
+
+        fontWeight: '700',
+
+    },
+
+
+
+    panelTitle: { fontSize: 22, fontWeight: '700', color: '#111827' },
+
+    panelSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 4 },
+
+    closeButton: {
+
+        width: 38,
+
+        height: 38,
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+    },
+
+    closeButtonText: { fontSize: 27, color: '#374151', lineHeight: 29 },
+
+    leaveRequestSection: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        padding: 13,
 
         borderWidth: 1,
 
@@ -1531,23 +2110,19 @@ const styles = StyleSheet.create({
 
         borderRadius: 12,
 
-        padding: 14,
-
-        flexDirection: 'row',
-
-        alignItems: 'center',
-
-        marginBottom: 25,
+        marginBottom: 16,
 
     },
 
-    requestIconContainer: {
 
-        width: 40,
 
-        height: 40,
+    leaveRequestIcon: {
 
-        borderRadius: 20,
+        width: 42,
+
+        height: 42,
+
+        borderRadius: 10,
 
         backgroundColor: '#FEF3C7',
 
@@ -1555,71 +2130,267 @@ const styles = StyleSheet.create({
 
         justifyContent: 'center',
 
-    },
-
-    requestIcon: {
-
-        fontSize: 18,
+        marginRight: 11,
 
     },
 
-    requestContent: {
+
+
+    leaveIconText: {
+
+        fontSize: 20,
+
+    },
+
+
+
+    leaveRequestInfo: {
 
         flex: 1,
 
-        marginLeft: 12,
-
     },
 
-    requestTitle: {
+
+
+    leaveRequestTitle: {
 
         fontSize: 14,
 
         fontWeight: '700',
 
-        color: '#92400E',
-
-    },
-
-    requestEmployee: {
-
-        fontSize: 14,
-
-        fontWeight: '600',
-
         color: '#111827',
 
-        marginTop: 3,
-
     },
 
-    requestDetails: {
 
-        fontSize: 12,
+
+    leaveRequestSubtitle: {
+
+        fontSize: 11,
 
         color: '#6B7280',
 
-        marginTop: 2,
+        marginTop: 4,
 
     },
 
-    reviewText: {
 
-        fontSize: 13,
 
-        fontWeight: '600',
+    leaveRequestBadge: {
 
-        color: '#2563EB',
+        minWidth: 24,
+
+        height: 24,
+
+        paddingHorizontal: 6,
+
+        borderRadius: 12,
+
+        backgroundColor: '#DC2626',
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
 
     },
 
-    // --------------------------------
 
-    // Recent Activity
 
-    // --------------------------------
+    leaveRequestBadgeText: {
 
-    activityCard: {
+        color: '#FFFFFF',
+
+        fontSize: 11,
+
+        fontWeight: '700',
+
+    },
+
+
+
+    leaveRequestArrow: {
+
+        fontSize: 24,
+
+        color: '#6B7280',
+
+        marginLeft: 8,
+
+    },
+
+    sendAllButton: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        padding: 14,
+
+        borderRadius: 13,
+
+        backgroundColor: '#EFF6FF',
+
+        borderWidth: 1,
+
+        borderColor: '#DBEAFE',
+
+        marginBottom: 20,
+
+    },
+
+    sendAllIcon: { fontSize: 23, color: '#2563EB', marginRight: 12 },
+
+    sendAllTitle: { fontSize: 14, fontWeight: '700', color: '#1D4ED8' },
+
+    sendAllSubtitle: { fontSize: 11, color: '#4B5563', marginTop: 4 },
+
+    sendAllArrow: { fontSize: 27, color: '#2563EB', marginLeft: 8 },
+
+
+
+    formHeading: {
+
+        fontSize: 17,
+
+        fontWeight: '700',
+
+        color: '#111827',
+
+        marginBottom: 18,
+
+    },
+
+
+
+    formInput: {
+
+        minHeight: 48,
+
+        borderWidth: 1,
+
+        borderColor: '#D1D5DB',
+
+        borderRadius: 10,
+
+        paddingHorizontal: 12,
+
+        paddingVertical: 12,
+
+        fontSize: 14,
+
+        color: '#111827',
+
+        backgroundColor: '#FFFFFF',
+
+    },
+
+    messageInput: { minHeight: 120 },
+
+    recipientInfo: {
+
+        flexDirection: 'row',
+
+        alignItems: 'center',
+
+        backgroundColor: '#F9FAFB',
+
+        borderRadius: 10,
+
+        padding: 13,
+
+        marginTop: 18,
+
+    },
+
+    recipientIcon: { fontSize: 21, marginRight: 12 },
+
+    recipientTitle: { fontSize: 13, fontWeight: '700', color: '#374151' },
+
+    recipientSubtitle: { fontSize: 12, color: '#6B7280', marginTop: 3 },
+
+    sendButton: {
+
+        minHeight: 50,
+
+        borderRadius: 11,
+
+        backgroundColor: '#2563EB',
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        marginTop: 18,
+
+    },
+
+    sendButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+
+    cancelComposeButton: {
+
+        minHeight: 44,
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        marginTop: 6,
+
+    },
+
+    cancelComposeText: { color: '#4B5563', fontSize: 14, fontWeight: '600' },
+
+
+
+    announcementList: { flexGrow: 0 },
+
+    listHeading: {
+
+        fontSize: 15,
+
+        fontWeight: '700',
+
+        color: '#111827',
+
+        marginBottom: 12,
+
+    },
+
+    emptyAnnouncements: {
+
+        alignItems: 'center',
+
+        justifyContent: 'center',
+
+        paddingHorizontal: 20,
+
+        paddingVertical: 28,
+
+        backgroundColor: '#F9FAFB',
+
+        borderRadius: 12,
+
+    },
+
+    emptyIcon: { fontSize: 28, marginBottom: 8 },
+
+    emptyTitle: { fontSize: 14, fontWeight: '700', color: '#374151' },
+
+    emptyText: {
+
+        fontSize: 12,
+
+        lineHeight: 18,
+
+        textAlign: 'center',
+
+        color: '#6B7280',
+
+        marginTop: 6,
+
+    },
+
+    announcementCard: {
 
         borderWidth: 1,
 
@@ -1627,85 +2398,77 @@ const styles = StyleSheet.create({
 
         borderRadius: 12,
 
-        padding: 16,
+        padding: 13,
+
+        marginBottom: 12,
 
     },
 
-    activityItem: {
+    announcementTitle: {
 
         fontSize: 14,
 
-        color: '#374151',
+        fontWeight: '700',
 
-        marginBottom: 4,
+        color: '#111827',
+
+    },
+
+    announcementMessage: {
+
+        fontSize: 13,
+
+        lineHeight: 20,
+
+        color: '#4B5563',
+
+        marginTop: 8,
 
     },
 
-    activityEntry: { marginBottom: 12 },
+    announcementMeta: {
 
-    activityMeta: { fontSize: 11, color: '#6B7280', marginLeft: 12 },
+        fontSize: 11,
 
-    // =================================
+        fontWeight: '600',
 
-    // QUICK EMPLOYEE MODAL
+        color: '#2563EB',
 
-    // =================================
-
-    modalOverlay: {
-
-        flex: 1,
-
-        backgroundColor: 'rgba(0, 0, 0, 0.35)',
-
-        justifyContent: 'center',
-
-        alignItems: 'center',
-
-        paddingHorizontal: 20,
+        marginTop: 10,
 
     },
+
+    announcementDate: { fontSize: 10, color: '#9CA3AF', marginTop: 4 },
+
+
 
     quickPanel: {
 
-        width: '100%',
-
-        maxHeight: '75%',
+        maxHeight: '80%',
 
         backgroundColor: '#FFFFFF',
 
         borderRadius: 20,
 
+        marginHorizontal: 18,
+
         overflow: 'hidden',
-
-        elevation: 15,
-
-        shadowColor: '#000000',
-
-        shadowOffset: {
-
-            width: 0,
-
-            height: 6,
-
-        },
-
-        shadowOpacity: 0.2,
-
-        shadowRadius: 12,
 
     },
 
     quickPanelHeader: {
-
-        minHeight: 75,
-
-        paddingHorizontal: 18,
 
         flexDirection: 'row',
 
         alignItems: 'center',
 
         justifyContent: 'space-between',
+
+        paddingHorizontal: 18,
+
+        paddingTop: 15,
+
+        paddingBottom: 12,
 
         borderBottomWidth: 1,
 
@@ -1719,73 +2482,17 @@ const styles = StyleSheet.create({
 
         alignItems: 'center',
 
-    },
-
-    quickStatusDot: {
-
-        width: 12,
-
-        height: 12,
-
-        borderRadius: 6,
-
-        marginRight: 10,
+        gap: 10,
 
     },
 
-    quickPanelTitle: {
+    quickStatusDot: { width: 10, height: 10, borderRadius: 5 },
 
-        fontSize: 17,
+    quickPanelTitle: { fontSize: 16, fontWeight: '700', color: '#111827' },
 
-        fontWeight: '700',
+    quickPanelCount: { fontSize: 12, color: '#6B7280', marginTop: 3 },
 
-        color: '#111827',
-
-    },
-
-    quickPanelCount: {
-
-        fontSize: 12,
-
-        color: '#6B7280',
-
-        marginTop: 3,
-
-    },
-
-    closeButton: {
-
-        width: 36,
-
-        height: 36,
-
-        borderRadius: 18,
-
-        backgroundColor: '#F3F4F6',
-
-        alignItems: 'center',
-
-        justifyContent: 'center',
-
-    },
-
-    closeButtonText: {
-
-        fontSize: 25,
-
-        lineHeight: 27,
-
-        color: '#374151',
-
-    },
-
-    quickEmployeeList: {
-
-        paddingHorizontal: 14,
-
-        paddingVertical: 10,
-
-    },
+    quickEmployeeList: { paddingHorizontal: 14, paddingVertical: 10 },
 
     quickEmployeeCard: {
 
@@ -1805,57 +2512,17 @@ const styles = StyleSheet.create({
 
     },
 
-    quickEmployeeInfo: {
+    quickEmployeeInfo: { flex: 1 },
 
-        flex: 1,
+    quickEmployeeName: { fontSize: 15, fontWeight: '600', color: '#111827' },
 
-    },
+    quickEmployeeId: { fontSize: 12, color: '#6B7280', marginTop: 3 },
 
-    quickEmployeeName: {
+    quickEmployeeDesignation: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
 
-        fontSize: 15,
+    quickEmployeeStatus: { paddingLeft: 10 },
 
-        fontWeight: '600',
-
-        color: '#111827',
-
-    },
-
-    quickEmployeeId: {
-
-        fontSize: 12,
-
-        color: '#6B7280',
-
-        marginTop: 3,
-
-    },
-
-    quickEmployeeDesignation: {
-
-        fontSize: 12,
-
-        color: '#9CA3AF',
-
-        marginTop: 2,
-
-    },
-
-    quickEmployeeStatus: {
-
-        paddingLeft: 10,
-
-    },
-
-    quickStatusIndicator: {
-
-        width: 10,
-
-        height: 10,
-
-        borderRadius: 5,
-
-    },
+    quickStatusIndicator: { width: 10, height: 10, borderRadius: 5 },
 
     quickPanelFooter: {
 
