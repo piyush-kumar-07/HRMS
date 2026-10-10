@@ -161,6 +161,7 @@ const DepartmentsSettingsScreen = ({ navigation }: any) => {
         }
     };
 
+
     const handleDeleteDepartment = (department: Department) => {
         Alert.alert(
             'Delete Department',
@@ -337,6 +338,34 @@ const DepartmentsSettingsScreen = ({ navigation }: any) => {
                 </TouchableOpacity>
             </View>
 
+            {/* Internal Department Transfer */}
+            <TouchableOpacity
+                style={styles.transferMenu}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('DepartmentTransfer')}>
+
+                <MaterialIcons
+                    name="swap-horiz"
+                    size={24}
+                    color="#2563EB"
+                />
+
+                <View style={styles.transferMenuInfo}>
+                    <Text style={styles.transferMenuTitle}>
+                        Internal Department Transfer
+                    </Text>
+
+                    <Text style={styles.transferMenuSubtitle}>
+                        Move employees between departments
+                    </Text>
+                </View>
+
+                <MaterialIcons
+                    name="chevron-right"
+                    size={24}
+                    color="#9CA3AF"
+                />
+            </TouchableOpacity>
             {/* Search */}
             <View style={styles.searchContainer}>
                 <MaterialIcons
@@ -524,6 +553,34 @@ const styles = StyleSheet.create({
 
     formContainer: {
         padding: 16,
+    },
+    transferMenu: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#EFF6FF',
+        borderWidth: 1,
+        borderColor: '#BFDBFE',
+        borderRadius: 12,
+        padding: 15,
+        marginHorizontal: 16,
+        marginTop: 14,
+    },
+
+    transferMenuInfo: {
+        flex: 1,
+        marginLeft: 12,
+    },
+
+    transferMenuTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#111827',
+    },
+
+    transferMenuSubtitle: {
+        fontSize: 12,
+        color: '#6B7280',
+        marginTop: 4,
     },
 
     inputLabel: {

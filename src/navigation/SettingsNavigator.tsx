@@ -5,6 +5,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import OrganizationSettingsScreen from '../screens/OrganizationSettingsScreen';
 import DepartmentsSettingsScreen from '../screens/DepartmentsSettingsScreen';
 import DepartmentDetailsScreen from '../screens/DepartmentDetailsScreen';
+import DepartmentTransferScreen from '../screens/DepartmentTransferScreen';
 import UsersPermissionsScreen from '../screens/UsersPermissionsScreen';
 import PayrollSettingsScreen from '../screens/PayrollSettingsScreen';
 import SalaryTypesScreen from '../screens/SalaryTypesScreen';
@@ -33,6 +34,10 @@ const SettingsNavigator = () => {
             <Stack.Screen
                 name="DepartmentsSettings"
                 component={DepartmentsSettingsScreen}
+            />
+            <Stack.Screen
+                name="DepartmentTransfer"
+                component={DepartmentTransferScreen}
             />
 
             <Stack.Screen

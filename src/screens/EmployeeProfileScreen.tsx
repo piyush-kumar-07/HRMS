@@ -122,9 +122,11 @@ const EmployeeProfileScreen = ({
                             />
 
                             <View style={styles.lastDetailRow}>
-                                <Text style={styles.detailLabel}>Role</Text>
+                                <Text style={styles.detailLabel}>Contact</Text>
                                 <Text style={styles.detailValue}>
-                                    {previousWork.role || 'Not provided'}
+                                    {previousWork.contact != null
+                                        ? String(previousWork.contact)
+                                        : 'Not provided'}
                                 </Text>
                             </View>
                         </>

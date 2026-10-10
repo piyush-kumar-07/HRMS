@@ -23,11 +23,11 @@ const AppNavigator = () => {
                 tabBarShowLabel: true,
 
                 tabBarStyle: {
-                    position: 'absolute',
+
 
                     left: 16,
-                    right: 16,
-                    bottom: 25,
+
+
 
                     height: 72,
 

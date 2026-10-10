@@ -24,7 +24,7 @@ type Employee = {
         companyName: string;
         period: string;
         role: string;
-        contact: number;
+        contact?: number;
     };
 };
 
