@@ -124,7 +124,7 @@ const HomeScreen = () => {
 
         const searchText = search.trim();
 
-        Keyboard.dismiss();
+        Keyboard.dismiss(); // hides keyboard
 
 
 
