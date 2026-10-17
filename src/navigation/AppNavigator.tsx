@@ -40,6 +40,7 @@ const AppNavigator = () => {
                     paddingHorizontal: 8,
                     paddingTop: 6,
                     paddingBottom: 8,
+                    bottom: 6,
 
                     elevation: 15,
 
