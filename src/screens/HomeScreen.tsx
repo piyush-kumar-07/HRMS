@@ -318,7 +318,7 @@ const HomeScreen = () => {
 
         }
 
-
+        // Ask for confirmation 
 
         Alert.alert(
 
