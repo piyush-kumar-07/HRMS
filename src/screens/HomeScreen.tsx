@@ -426,8 +426,6 @@ const HomeScreen = () => {
 
                         </View>
 
-
-
                         <Text style={styles.companyName}>
 
                             BARC Security Solution
@@ -566,7 +564,7 @@ const HomeScreen = () => {
 
                         onLongPress={() => openQuickStatus('present')}
 
-                        delayLongPress={500}
+                        delayLongPress={400}
 
                     >
 
